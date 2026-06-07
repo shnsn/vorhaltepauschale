@@ -489,26 +489,26 @@
       font-weight: 700;
       padding: 8px 22px;
       border-radius: 8px;
-      border: none;
-      cursor: pointer;
-      transition: background 0.2s, opacity 0.2s, transform 0.1s;
-      background: #D8C4D4;
-      color: #fff;
-      opacity: 0.45;
-      pointer-events: none;
+      border: 2px solid var(--warm-border);
+      cursor: default;
+      transition: background 0.2s, border-color 0.2s, color 0.2s, transform 0.1s;
+      background: transparent;
+      color: var(--warm-muted);
       white-space: nowrap;
     }
     .save-btn.dirty {
       background: var(--praxis);
-      opacity: 1;
-      pointer-events: auto;
+      border-color: var(--praxis);
+      color: #fff;
+      cursor: pointer;
     }
-    .save-btn.dirty:hover { background: var(--primary-dark); transform: translateY(-1px); }
+    .save-btn.dirty:hover { background: var(--primary-dark); border-color: var(--primary-dark); transform: translateY(-1px); }
     .save-btn.dirty:active { transform: translateY(0); }
     .save-btn.saved {
       background: var(--success);
-      opacity: 1;
-      pointer-events: none;
+      border-color: var(--success);
+      color: #fff;
+      cursor: default;
     }
 
     /* ══ RESPONSIVE ══════════════════════════ */
@@ -571,15 +571,13 @@
   <div class="summary-left" id="summaryPills">
     <span class="pill pill-neutral"><span class="pill-dot"></span>0 / 10 Kriterien erfüllt</span>
   </div>
-  <div style="display:flex; align-items:center; gap:16px;">
+  <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
     <div class="bonus-display">
       <div class="bonus-pts" id="bonusPts">128 Pkt.</div>
       <div class="bonus-gop" id="bonusGop">GOP 03040 – kein Zuschlag</div>
     </div>
-    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;">
-      <button class="save-btn" id="saveBtn" onclick="commitSave()">Update</button>
-      <span id="levelChangeHint" style="font-size:0.68rem;font-weight:700;display:none;white-space:nowrap;"></span>
-    </div>
+    <button class="save-btn" id="saveBtn" onclick="commitSave()">Update</button>
+    <span id="levelChangeHint" style="font-size:0.68rem;font-weight:700;display:none;white-space:nowrap;"></span>
   </div>
 </div>
 
