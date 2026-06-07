@@ -484,13 +484,31 @@
       line-height: 1.6;
     }
     .footer-note a { color: var(--primary); text-decoration: none; }
-    .notion-hint {
-      font-size: 0.65rem;
-      background: var(--primary-bg);
-      color: var(--primary-dark);
-      padding: 5px 10px;
-      border-radius: 6px;
-      font-weight: 600;
+    .save-btn {
+      font-size: 0.82rem;
+      font-weight: 700;
+      padding: 8px 22px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      transition: background 0.2s, opacity 0.2s, transform 0.1s;
+      background: #D8C4D4;
+      color: #fff;
+      opacity: 0.45;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+    .save-btn.dirty {
+      background: var(--praxis);
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .save-btn.dirty:hover { background: var(--primary-dark); transform: translateY(-1px); }
+    .save-btn.dirty:active { transform: translateY(0); }
+    .save-btn.saved {
+      background: var(--success);
+      opacity: 1;
+      pointer-events: none;
     }
 
     /* ══ RESPONSIVE ══════════════════════════ */
@@ -524,7 +542,7 @@
     <div class="header-controls">
       <div class="ctrl-group">
         <label>Quartal</label>
-        <select id="quartalSelect" onchange="save(); calcAll()">
+        <select id="quartalSelect" onchange="calcAll(); markDirty()">
           <option value="Q1">Q1 (Jan–Mär)</option>
           <option value="Q2">Q2 (Apr–Jun)</option>
           <option value="Q3">Q3 (Jul–Sep)</option>
@@ -533,7 +551,7 @@
       </div>
       <div class="ctrl-group">
         <label>Jahr</label>
-        <select id="jahrSelect" onchange="save(); calcAll()">
+        <select id="jahrSelect" onchange="calcAll(); markDirty()">
           <option value="2025">2025</option>
           <option value="2026" selected>2026</option>
           <option value="2027">2027</option>
@@ -542,7 +560,7 @@
       <div class="ctrl-group">
         <label>Behandlungsfälle (Quartal)</label>
         <input type="number" id="totalCases" min="0" placeholder="z.B. 1000"
-               oninput="save(); calcAll()">
+               oninput="calcAll(); markDirty()">
       </div>
     </div>
   </div>
@@ -553,9 +571,15 @@
   <div class="summary-left" id="summaryPills">
     <span class="pill pill-neutral"><span class="pill-dot"></span>0 / 10 Kriterien erfüllt</span>
   </div>
-  <div class="bonus-display">
-    <div class="bonus-pts" id="bonusPts">128 Pkt.</div>
-    <div class="bonus-gop" id="bonusGop">GOP 03040 – kein Zuschlag</div>
+  <div style="display:flex; align-items:center; gap:16px;">
+    <div class="bonus-display">
+      <div class="bonus-pts" id="bonusPts">128 Pkt.</div>
+      <div class="bonus-gop" id="bonusGop">GOP 03040 – kein Zuschlag</div>
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;">
+      <button class="save-btn" id="saveBtn" onclick="commitSave()">Update</button>
+      <span id="levelChangeHint" style="font-size:0.68rem;font-weight:700;display:none;white-space:nowrap;"></span>
+    </div>
   </div>
 </div>
 
@@ -582,7 +606,7 @@
       <div class="input-block">
         <label>Abgerechnete Leistungen (Summe aller Ziffern)</label>
         <input type="number" id="in-besuche" min="0" placeholder="0"
-               oninput="save(); calcKpi('besuche')">
+               oninput="calcKpi('besuche'); updateSummary(); markDirty()">
       </div>
       <div class="prog-labels">
         <span class="prog-current" id="pct-besuche">–</span>
@@ -611,7 +635,7 @@
       <div class="input-block">
         <label>Abgerechnete Leistungen (Summe aller Ziffern)</label>
         <input type="number" id="in-geriatrie" min="0" placeholder="0"
-               oninput="save(); calcKpi('geriatrie')">
+               oninput="calcKpi('geriatrie'); updateSummary(); markDirty()">
       </div>
       <div class="prog-labels">
         <span class="prog-current" id="pct-geriatrie">–</span>
@@ -636,7 +660,7 @@
       <div class="input-block">
         <label>Abgerechnete Leistungen (Ziffer 01450)</label>
         <input type="number" id="in-video" min="0" placeholder="0"
-               oninput="save(); calcKpi('video')">
+               oninput="calcKpi('video'); updateSummary(); markDirty()">
       </div>
       <div class="prog-labels">
         <span class="prog-current" id="pct-video">–</span>
@@ -664,7 +688,7 @@
       <div class="crit-gops">EBM-Abschnitt 37.2</div>
       <div class="crit-input-row">
         <label>Leistungen</label>
-        <input type="number" id="in-pflege" min="0" placeholder="0" oninput="save(); calcCrit('pflege')">
+        <input type="number" id="in-pflege" min="0" placeholder="0" oninput="calcCrit('pflege'); updateSummary(); markDirty()">
       </div>
       <div class="crit-prog-track">
         <div class="crit-prog-fill fill-neutral" id="fill-pflege" style="width:0%"></div>
@@ -685,7 +709,7 @@
       <div class="crit-gops">Anlage 1 Schutzimpfungs-RL · Kap. 89 · COVID-19</div>
       <div class="crit-input-row">
         <label>Impfungen</label>
-        <input type="number" id="in-impf" min="0" placeholder="0" oninput="save(); calcCrit('impf')">
+        <input type="number" id="in-impf" min="0" placeholder="0" oninput="calcCrit('impf'); updateSummary(); markDirty()">
       </div>
       <div class="crit-prog-track">
         <div class="crit-prog-fill fill-neutral" id="fill-impf" style="width:0%"></div>
@@ -707,7 +731,7 @@
       <div class="crit-gops">02300 · 02301 · 02302 · 02310 · 02311 · 02312 · 02313 · 31600</div>
       <div class="crit-input-row">
         <label>Leistungen</label>
-        <input type="number" id="in-chir" min="0" placeholder="0" oninput="save(); calcCrit('chir')">
+        <input type="number" id="in-chir" min="0" placeholder="0" oninput="calcCrit('chir'); updateSummary(); markDirty()">
       </div>
       <div class="crit-prog-track">
         <div class="crit-prog-fill fill-neutral" id="fill-chir" style="width:0%"></div>
@@ -728,7 +752,7 @@
       <div class="crit-gops">33012 (Abdomen) · 33042 (Schilddrüse)</div>
       <div class="crit-input-row">
         <label>Leistungen</label>
-        <input type="number" id="in-us" min="0" placeholder="0" oninput="save(); calcCrit('us')">
+        <input type="number" id="in-us" min="0" placeholder="0" oninput="calcCrit('us'); updateSummary(); markDirty()">
       </div>
       <div class="crit-prog-track">
         <div class="crit-prog-fill fill-neutral" id="fill-us" style="width:0%"></div>
@@ -749,7 +773,7 @@
       <div class="crit-gops">03241 · 03321 · 03322 · 03324 · 03330<br>(LZ-RR · LZ-EKG · Belastungs-EKG · Spirographie)</div>
       <div class="crit-input-row">
         <label>Leistungen</label>
-        <input type="number" id="in-basis" min="0" placeholder="0" oninput="save(); calcCrit('basis')">
+        <input type="number" id="in-basis" min="0" placeholder="0" oninput="calcCrit('basis'); updateSummary(); markDirty()">
       </div>
       <div class="crit-prog-track">
         <div class="crit-prog-fill fill-neutral" id="fill-basis" style="width:0%"></div>
@@ -790,7 +814,6 @@
     <div class="footer-note">
       Quelle: <a href="https://www.kbv.de/praxis/abrechnung/vorhaltepauschale" target="_blank">KBV – Vorhaltepauschale</a> · BA-Beschluss 792 · In Kraft seit 01.01.2026 · Daten werden lokal gespeichert.
     </div>
-    <div class="notion-hint">📋 Notion: netlify.com/drop → URL als /embed einfügen</div>
   </div>
 
 </main>
@@ -811,6 +834,59 @@ const CRITERIA = {
 const KPI_KEYS  = ['besuche', 'geriatrie', 'video'];
 const CRIT_KEYS = ['pflege', 'impf', 'chir', 'us', 'basis'];
 const CHK_KEYS  = ['zusammen', 'zeiten'];
+
+// ── Level-Tracking ─────────────────────────
+let savedLevel = 0;   // gespeicherter Stand: Anzahl erfüllter Kriterien
+let currentLevel = 0; // aktueller Stand (ungespeichert)
+
+function getBonusTier(metCount) {
+  if (metCount >= 8) return 3;
+  if (metCount >= 2) return 2;
+  return 1;
+}
+
+function tierLabel(tier) {
+  if (tier === 3) return '158 Pkt. (Zuschlag II)';
+  if (tier === 2) return '138 Pkt. (Zuschlag I)';
+  return '128 Pkt. (kein Zuschlag)';
+}
+
+// ── Dirty-State (Button + Level-Hinweis) ──
+function markDirty() {
+  const btn  = document.getElementById('saveBtn');
+  const hint = document.getElementById('levelChangeHint');
+  if (btn) { btn.className = 'save-btn dirty'; btn.textContent = 'Update'; }
+
+  if (hint) {
+    const newTier  = getBonusTier(currentLevel);
+    const saveTier = getBonusTier(savedLevel);
+    if (newTier !== saveTier) {
+      const up = newTier > saveTier;
+      hint.textContent = up
+        ? `⬆ ${tierLabel(newTier)}`
+        : `⬇ ${tierLabel(newTier)}`;
+      hint.style.color   = up ? 'var(--success)' : 'var(--rust)';
+      hint.style.display = 'block';
+    } else {
+      hint.style.display = 'none';
+    }
+  }
+}
+
+function commitSave() {
+  savedLevel = currentLevel;
+  save();
+  const btn  = document.getElementById('saveBtn');
+  const hint = document.getElementById('levelChangeHint');
+  if (hint) hint.style.display = 'none';
+  if (!btn) return;
+  btn.className = 'save-btn saved';
+  btn.textContent = '✓ Aktualisiert';
+  setTimeout(() => {
+    btn.className = 'save-btn';
+    btn.textContent = 'Update';
+  }, 2000);
+}
 
 // ── Storage (robust, iframe-sicher) ───────
 const STORE_KEY = 'vhp_v3';
@@ -970,8 +1046,8 @@ function calcCrit(key) {
 function toggleCheck(key) {
   const isChecked = document.getElementById('card-'+key).classList.contains('checked');
   setCheck(key, !isChecked);
-  save();
   updateSummary();
+  markDirty();
 }
 function setCheck(key, val) {
   const card = document.getElementById('card-'+key);
@@ -993,6 +1069,8 @@ function updateSummary() {
   CHK_KEYS.forEach(k => {
     if (document.getElementById('card-'+k).classList.contains('checked')) met++;
   });
+
+  currentLevel = met;
 
   let pts, gop, pillClass;
   if (met >= 8)      { pts = '158 Pkt.'; gop = 'GOP 03040 + 03042 (Zuschlag II, +30 Pkt.)'; pillClass = 'pill pill-green'; }
@@ -1027,6 +1105,7 @@ function calcAll() {
 window.addEventListener('DOMContentLoaded', () => {
   load();
   calcAll();
+  savedLevel = currentLevel; // gespeicherter Stand nach dem Laden setzen
 });
 </script>
 
