@@ -1,0 +1,1034 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!--
+    ════════════════════════════════════════════
+    NOTION-INTEGRATION:
+    1. Diese Datei auf netlify.com/drop hochladen
+       (einfach reinziehen → kostenlos, sofort live)
+    2. Die generierte URL kopieren
+    3. In Notion: /embed → URL einfügen
+    4. Embed-Höhe in Notion auf ca. 900px einstellen
+    ════════════════════════════════════════════
+  -->
+  <title>Vorhaltepauschale 2026</title>
+  <style>
+    /* ══ PRAXISFARBEN – Gollierplatz / Romanplatz ══ */
+    :root {
+      --praxis:       #924E7D;   /* Praxisfarbe Original */
+      --primary:      #A86098;   /* Etwas heller – Header-Hintergrund */
+      --primary-dark: #6B3860;   /* Dunkel – Schrift auf hellem BG */
+      --primary-light:#C08AB4;   /* Hell – Akzente, KPI-Border */
+      --primary-pale: #FFFFFF;   /* Weiß – Seitenhintergrund */
+      --primary-bg:   #EDD8E8;   /* Helles Lila – Success-ähnliche Badges */
+      --warm-white:   #FFFFFF;
+      --warm-border:  #E4D3DF;
+      --warm-muted:   #8A7082;
+      --text:         #2C2030;
+      --text-light:   #5C4E58;
+      --success:      #3D7A4A;   /* Grün – Kriterium erfüllt (semantisch grün bleibt) */
+      --success-pale: #E6F4EA;
+      --success-bg:   #E6F4EA;
+      --amber:        #B07030;
+      --amber-pale:   #FDF3E3;
+      --rust:         #B04A35;
+      --rust-pale:    #FAEAE7;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+      background: var(--primary-pale);
+      color: var(--text);
+      min-height: 100vh;
+      font-size: 14px;
+    }
+
+    /* ══ HEADER ══════════════════════════════ */
+    header {
+      background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
+      color: #fff;
+      padding: 20px 28px;
+    }
+    .header-inner {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 14px;
+    }
+    .header-brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    /* Stilisierter Baum als SVG-Icon (analog zur Praxis-Website) */
+    .brand-icon {
+      width: 36px;
+      height: 36px;
+      flex-shrink: 0;
+      opacity: 0.92;
+    }
+    .header-title h1 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      letter-spacing: -0.2px;
+      line-height: 1.2;
+    }
+    .header-title p {
+      font-size: 0.72rem;
+      opacity: 0.65;
+      margin-top: 3px;
+    }
+
+    .header-controls {
+      display: flex;
+      align-items: flex-end;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .ctrl-group {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .ctrl-group label {
+      font-size: 0.62rem;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      opacity: 0.65;
+    }
+    .ctrl-group select,
+    .ctrl-group input[type="number"] {
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.25);
+      color: #fff;
+      border-radius: 7px;
+      padding: 6px 10px;
+      font-size: 0.88rem;
+      outline: none;
+    }
+    .ctrl-group select { width: 120px; }
+    .ctrl-group input[type="number"] { width: 130px; }
+    .ctrl-group select option { background: var(--green-dark); }
+    .ctrl-group input::placeholder { color: rgba(255,255,255,0.4); }
+    .ctrl-group select:focus,
+    .ctrl-group input:focus {
+      border-color: rgba(255,255,255,0.6);
+      background: rgba(255,255,255,0.2);
+    }
+
+    /* ══ SUMMARY BANNER ══════════════════════ */
+    .summary {
+      background: var(--warm-white);
+      border-top: 3px solid var(--praxis);
+      border-bottom: 1px solid var(--warm-border);
+      padding: 14px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .summary-left { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+    .pill-dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+    .pill-green  { background: var(--success-pale); color: var(--success); }
+    .pill-amber  { background: var(--amber-pale);   color: var(--amber); }
+    .pill-rust   { background: var(--rust-pale);    color: var(--rust); }
+    .pill-neutral{ background: var(--primary-bg);   color: var(--primary-dark); }
+
+    .bonus-display { text-align: right; }
+    .bonus-display .bonus-pts {
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: var(--primary-dark);
+      line-height: 1;
+    }
+    .bonus-display .bonus-gop {
+      font-size: 0.68rem;
+      color: var(--warm-muted);
+      margin-top: 2px;
+    }
+
+    /* ══ MAIN LAYOUT ═════════════════════════ */
+    main { padding: 20px 28px 36px; }
+
+    .section-label {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--warm-muted);
+      margin-bottom: 12px;
+      padding-left: 2px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .section-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--warm-border);
+    }
+
+    /* ══ KPI CARDS ═══════════════════════════ */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 14px;
+      margin-bottom: 24px;
+    }
+
+    .kpi-card {
+      background: var(--warm-white);
+      border: 1px solid var(--warm-border);
+      border-top: 3px solid var(--primary-light);
+      border-radius: 12px;
+      padding: 18px;
+      box-shadow: 0 1px 6px rgba(146,78,125,0.07);
+      transition: box-shadow 0.2s, border-top-color 0.3s;
+    }
+    .kpi-card:hover { box-shadow: 0 3px 14px rgba(146,78,125,0.12); }
+    .kpi-card.state-met   { border-top-color: var(--success); }
+    .kpi-card.state-unmet { border-top-color: var(--rust); }
+
+    .kpi-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .kpi-name { font-size: 0.88rem; font-weight: 700; line-height: 1.3; flex: 1; color: var(--primary-dark); }
+    .kpi-badge {
+      font-size: 0.66rem;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 8px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .badge-met     { background: var(--success-pale); color: var(--success); }
+    .badge-unmet   { background: var(--rust-pale);    color: var(--rust); }
+    .badge-neutral { background: var(--primary-bg);   color: var(--primary-dark); }
+
+    .gop-tags { display: flex; flex-wrap: wrap; gap: 3px; margin-bottom: 12px; }
+    .gop-tag {
+      font-size: 0.6rem;
+      background: var(--primary-bg);
+      color: var(--primary-dark);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: 'SFMono-Regular', Consolas, monospace;
+    }
+
+    .input-block { margin-bottom: 12px; }
+    .input-block label {
+      display: block;
+      font-size: 0.62rem;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--warm-muted);
+      margin-bottom: 4px;
+    }
+    .input-block input[type="number"] {
+      width: 100%;
+      border: 1.5px solid var(--warm-border);
+      border-radius: 7px;
+      padding: 8px 12px;
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text);
+      background: var(--primary-pale);
+      outline: none;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .input-block input:focus {
+      border-color: var(--primary);
+      background: #fff;
+    }
+
+    /* ── Progress Bar ─────────────────────── */
+    .prog-labels {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 5px;
+    }
+    .prog-current { font-size: 1rem; font-weight: 800; color: var(--text); }
+    .prog-target  { font-size: 0.7rem; color: var(--warm-muted); }
+
+    .prog-track {
+      position: relative;
+      height: 14px;
+      background: var(--primary-bg);
+      border-radius: 7px;
+      overflow: visible;
+    }
+    .prog-fill {
+      height: 100%;
+      border-radius: 7px;
+      transition: width 0.45s cubic-bezier(.4,0,.2,1), background 0.3s;
+      max-width: 100%;
+    }
+    .fill-met     { background: linear-gradient(90deg, var(--success), #5FAF74); }
+    .fill-unmet   { background: linear-gradient(90deg, var(--rust), #D4735F); }
+    .fill-neutral { background: #D8CBDA; }
+
+    .prog-marker {
+      position: absolute;
+      top: -5px;
+      bottom: -5px;
+      width: 2px;
+      background: var(--primary-dark);
+      border-radius: 2px;
+    }
+    .prog-marker::after {
+      content: attr(data-lbl);
+      position: absolute;
+      bottom: -17px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 0.58rem;
+      font-weight: 700;
+      color: var(--primary-dark);
+      white-space: nowrap;
+    }
+
+    .prog-hint {
+      margin-top: 20px;
+      font-size: 0.68rem;
+      color: var(--warm-muted);
+      min-height: 1em;
+    }
+    .hint-ok  { color: var(--green-mid); font-weight: 600; }
+    .hint-err { color: var(--rust); }
+
+    /* ══ SEKUNDÄRE KRITERIEN ═════════════════ */
+    .crit-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+      gap: 12px;
+      margin-bottom: 22px;
+    }
+
+    .crit-card {
+      background: var(--warm-white);
+      border: 1px solid var(--warm-border);
+      border-left: 3px solid var(--primary-light);
+      border-radius: 10px;
+      padding: 14px;
+      box-shadow: 0 1px 4px rgba(146,78,125,0.05);
+      transition: box-shadow 0.2s, border-left-color 0.3s;
+    }
+    .crit-card:hover { box-shadow: 0 2px 10px rgba(146,78,125,0.10); }
+    .crit-card.state-met   { border-left-color: var(--success); }
+    .crit-card.state-unmet { border-left-color: var(--rust); }
+
+    .crit-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 4px;
+    }
+    .crit-name { font-size: 0.78rem; font-weight: 700; color: var(--primary-dark); }
+    .crit-badge {
+      font-size: 0.6rem;
+      font-weight: 700;
+      padding: 1px 6px;
+      border-radius: 6px;
+    }
+    .crit-gops {
+      font-size: 0.6rem;
+      color: var(--warm-muted);
+      font-family: monospace;
+      margin-bottom: 10px;
+      line-height: 1.5;
+    }
+
+    .crit-input-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .crit-input-row label {
+      font-size: 0.6rem;
+      color: var(--warm-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      white-space: nowrap;
+    }
+    .crit-input-row input[type="number"] {
+      width: 80px;
+      border: 1.5px solid var(--warm-border);
+      border-radius: 6px;
+      padding: 5px 8px;
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--text);
+      background: var(--primary-pale);
+      outline: none;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .crit-input-row input:focus {
+      border-color: var(--primary);
+      background: #fff;
+    }
+
+    .crit-prog-track {
+      position: relative;
+      height: 8px;
+      background: var(--primary-bg);
+      border-radius: 4px;
+      overflow: visible;
+      margin-bottom: 10px;
+    }
+    .crit-prog-fill {
+      height: 100%;
+      border-radius: 4px;
+      transition: width 0.45s cubic-bezier(.4,0,.2,1), background 0.3s;
+      max-width: 100%;
+    }
+    .crit-marker {
+      position: absolute;
+      top: -3px;
+      bottom: -3px;
+      width: 2px;
+      background: var(--primary-dark);
+      border-radius: 2px;
+    }
+    .crit-stats {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.66rem;
+      color: var(--warm-muted);
+    }
+    .crit-pct { font-weight: 700; font-size: 0.78rem; color: var(--text); }
+
+    /* ══ CHECKBOX-KRITERIEN ══════════════════ */
+    .check-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+    .check-card {
+      background: var(--warm-white);
+      border: 1px solid var(--warm-border);
+      border-left: 3px solid var(--primary-light);
+      border-radius: 10px;
+      padding: 14px;
+      cursor: pointer;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      transition: box-shadow 0.2s, border-left-color 0.3s, background 0.2s;
+      user-select: none;
+    }
+    .check-card:hover { box-shadow: 0 2px 10px rgba(146,78,125,0.10); }
+    .check-card.checked {
+      border-left-color: var(--success);
+      background: var(--success-pale);
+    }
+    .check-box {
+      width: 20px;
+      height: 20px;
+      border-radius: 5px;
+      border: 2px solid var(--warm-border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: #fff;
+      transition: background 0.2s, border-color 0.2s;
+      margin-top: 1px;
+    }
+    .check-card.checked .check-box {
+      background: var(--success);
+      border-color: var(--success);
+    }
+    .check-content {}
+    .check-name { font-size: 0.78rem; font-weight: 700; color: var(--primary-dark); margin-bottom: 3px; }
+    .check-desc { font-size: 0.68rem; color: var(--warm-muted); line-height: 1.4; }
+
+    /* ══ FOOTER ══════════════════════════════ */
+    .footer {
+      border-top: 1px solid var(--warm-border);
+      padding-top: 14px;
+      margin-top: 4px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .footer-note {
+      font-size: 0.65rem;
+      color: var(--warm-muted);
+      line-height: 1.6;
+    }
+    .footer-note a { color: var(--primary); text-decoration: none; }
+    .notion-hint {
+      font-size: 0.65rem;
+      background: var(--primary-bg);
+      color: var(--primary-dark);
+      padding: 5px 10px;
+      border-radius: 6px;
+      font-weight: 600;
+    }
+
+    /* ══ RESPONSIVE ══════════════════════════ */
+    @media (max-width: 600px) {
+      header { padding: 16px 18px; }
+      .summary { padding: 12px 18px; }
+      main { padding: 16px 18px 28px; }
+      .ctrl-group select { width: 100px; }
+      .ctrl-group input[type="number"] { width: 110px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════ HEADER ═══════════ -->
+<header>
+  <div class="header-inner">
+    <div class="header-brand">
+      <!-- Stilisierter Baum (Praxis-Motiv) -->
+      <svg class="brand-icon" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M18 3 C12 10, 7 13, 9 18 C11 22, 14 20, 18 22 C22 20, 25 22, 27 18 C29 13, 24 10, 18 3Z" fill="rgba(255,255,255,0.7)"/>
+        <path d="M18 10 C14 15, 10 17, 12 21 C14 24, 16 22, 18 24 C20 22, 22 24, 24 21 C26 17, 22 15, 18 10Z" fill="rgba(255,255,255,0.5)"/>
+        <rect x="16" y="24" width="4" height="9" rx="2" fill="rgba(255,255,255,0.6)"/>
+      </svg>
+      <div class="header-title">
+        <h1>Vorhaltepauschale 2026</h1>
+        <p>Gollierplatz · Romanplatz &nbsp;·&nbsp; GOP 03040 / 03041 / 03042 &nbsp;·&nbsp; <span id="lastSavedDisplay">–</span></p>
+      </div>
+    </div>
+
+    <div class="header-controls">
+      <div class="ctrl-group">
+        <label>Quartal</label>
+        <select id="quartalSelect" onchange="save(); calcAll()">
+          <option value="Q1">Q1 (Jan–Mär)</option>
+          <option value="Q2">Q2 (Apr–Jun)</option>
+          <option value="Q3">Q3 (Jul–Sep)</option>
+          <option value="Q4">Q4 (Okt–Dez)</option>
+        </select>
+      </div>
+      <div class="ctrl-group">
+        <label>Jahr</label>
+        <select id="jahrSelect" onchange="save(); calcAll()">
+          <option value="2025">2025</option>
+          <option value="2026" selected>2026</option>
+          <option value="2027">2027</option>
+        </select>
+      </div>
+      <div class="ctrl-group">
+        <label>Behandlungsfälle (Quartal)</label>
+        <input type="number" id="totalCases" min="0" placeholder="z.B. 1000"
+               oninput="save(); calcAll()">
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ═══════════ SUMMARY ═══════════ -->
+<div class="summary">
+  <div class="summary-left" id="summaryPills">
+    <span class="pill pill-neutral"><span class="pill-dot"></span>0 / 10 Kriterien erfüllt</span>
+  </div>
+  <div class="bonus-display">
+    <div class="bonus-pts" id="bonusPts">128 Pkt.</div>
+    <div class="bonus-gop" id="bonusGop">GOP 03040 – kein Zuschlag</div>
+  </div>
+</div>
+
+<!-- ═══════════ MAIN ═══════════════ -->
+<main>
+
+  <!-- ─── Getrackte KPIs ──────────── -->
+  <div class="section-label">Getrackte KPIs</div>
+  <div class="kpi-grid">
+
+    <!-- KPI 1: Haus- & Pflegeheimbesuche -->
+    <div class="kpi-card" id="card-besuche">
+      <div class="kpi-header">
+        <div class="kpi-name">Haus- und Pflegeheimbesuche</div>
+        <div class="kpi-badge badge-neutral" id="badge-besuche">– –</div>
+      </div>
+      <div class="gop-tags">
+        <span class="gop-tag">01410</span><span class="gop-tag">01411</span>
+        <span class="gop-tag">01412</span><span class="gop-tag">01413</span>
+        <span class="gop-tag">01415</span><span class="gop-tag">01721</span>
+        <span class="gop-tag">03062</span><span class="gop-tag">03063</span>
+        <span class="gop-tag">38100</span><span class="gop-tag">38105</span>
+      </div>
+      <div class="input-block">
+        <label>Abgerechnete Leistungen (Summe aller Ziffern)</label>
+        <input type="number" id="in-besuche" min="0" placeholder="0"
+               oninput="save(); calcKpi('besuche')">
+      </div>
+      <div class="prog-labels">
+        <span class="prog-current" id="pct-besuche">–</span>
+        <span class="prog-target">Ziel: <strong>≥ 5 %</strong></span>
+      </div>
+      <div class="prog-track">
+        <div class="prog-fill fill-neutral" id="fill-besuche" style="width:0%"></div>
+        <div class="prog-marker" id="marker-besuche" data-lbl="Ziel 5%" style="left:0%"></div>
+      </div>
+      <div class="prog-hint" id="hint-besuche"></div>
+    </div>
+
+    <!-- KPI 2: Geriatrie / Palliativ -->
+    <div class="kpi-card" id="card-geriatrie">
+      <div class="kpi-header">
+        <div class="kpi-name">Geriatrische / palliativmedizinische Versorgung</div>
+        <div class="kpi-badge badge-neutral" id="badge-geriatrie">– –</div>
+      </div>
+      <div class="gop-tags">
+        <span class="gop-tag">Abschn. 3.2.4</span>
+        <span class="gop-tag">Abschn. 3.2.5</span>
+        <span class="gop-tag">Abschn. 37.3</span>
+        <span class="gop-tag">30980</span>
+        <span class="gop-tag">30984</span>
+      </div>
+      <div class="input-block">
+        <label>Abgerechnete Leistungen (Summe aller Ziffern)</label>
+        <input type="number" id="in-geriatrie" min="0" placeholder="0"
+               oninput="save(); calcKpi('geriatrie')">
+      </div>
+      <div class="prog-labels">
+        <span class="prog-current" id="pct-geriatrie">–</span>
+        <span class="prog-target">Ziel: <strong>≥ 12 %</strong></span>
+      </div>
+      <div class="prog-track">
+        <div class="prog-fill fill-neutral" id="fill-geriatrie" style="width:0%"></div>
+        <div class="prog-marker" id="marker-geriatrie" data-lbl="Ziel 12%" style="left:0%"></div>
+      </div>
+      <div class="prog-hint" id="hint-geriatrie"></div>
+    </div>
+
+    <!-- KPI 3: Videosprechstunde -->
+    <div class="kpi-card" id="card-video">
+      <div class="kpi-header">
+        <div class="kpi-name">Videosprechstunde</div>
+        <div class="kpi-badge badge-neutral" id="badge-video">– –</div>
+      </div>
+      <div class="gop-tags">
+        <span class="gop-tag">01450</span>
+      </div>
+      <div class="input-block">
+        <label>Abgerechnete Leistungen (Ziffer 01450)</label>
+        <input type="number" id="in-video" min="0" placeholder="0"
+               oninput="save(); calcKpi('video')">
+      </div>
+      <div class="prog-labels">
+        <span class="prog-current" id="pct-video">–</span>
+        <span class="prog-target">Ziel: <strong>≥ 1 %</strong></span>
+      </div>
+      <div class="prog-track">
+        <div class="prog-fill fill-neutral" id="fill-video" style="width:0%"></div>
+        <div class="prog-marker" id="marker-video" data-lbl="Ziel 1%" style="left:0%"></div>
+      </div>
+      <div class="prog-hint" id="hint-video"></div>
+    </div>
+
+  </div><!-- /kpi-grid -->
+
+  <!-- ─── Weitere Kriterien ────────── -->
+  <div class="section-label">Weitere Kriterien</div>
+  <div class="crit-grid">
+
+    <!-- Kooperation Pflegeheim -->
+    <div class="crit-card" id="card-pflege">
+      <div class="crit-header">
+        <div class="crit-name">Kooperation Pflegeheim</div>
+        <div class="crit-badge badge-neutral" id="badge-pflege">– –</div>
+      </div>
+      <div class="crit-gops">EBM-Abschnitt 37.2</div>
+      <div class="crit-input-row">
+        <label>Leistungen</label>
+        <input type="number" id="in-pflege" min="0" placeholder="0" oninput="save(); calcCrit('pflege')">
+      </div>
+      <div class="crit-prog-track">
+        <div class="crit-prog-fill fill-neutral" id="fill-pflege" style="width:0%"></div>
+        <div class="crit-marker" id="cmarker-pflege" style="left:0%"></div>
+      </div>
+      <div class="crit-stats">
+        <span class="crit-pct" id="pct-pflege">–</span>
+        <span>Ziel ≥ 1 %</span>
+      </div>
+    </div>
+
+    <!-- Schutzimpfungen -->
+    <div class="crit-card" id="card-impf">
+      <div class="crit-header">
+        <div class="crit-name">Schutzimpfungen</div>
+        <div class="crit-badge badge-neutral" id="badge-impf">– –</div>
+      </div>
+      <div class="crit-gops">Anlage 1 Schutzimpfungs-RL · Kap. 89 · COVID-19</div>
+      <div class="crit-input-row">
+        <label>Impfungen</label>
+        <input type="number" id="in-impf" min="0" placeholder="0" oninput="save(); calcCrit('impf')">
+      </div>
+      <div class="crit-prog-track">
+        <div class="crit-prog-fill fill-neutral" id="fill-impf" style="width:0%"></div>
+        <div class="crit-marker" id="cmarker-impf" style="left:0%"></div>
+      </div>
+      <div class="crit-stats">
+        <span class="crit-pct" id="pct-impf">–</span>
+        <span id="ziel-impf">Ziel ≥ 7 % (Q1–Q3)</span>
+      </div>
+      <div style="font-size:0.6rem; color:var(--amber); margin-top:6px; font-weight:600" id="impf-warning"></div>
+    </div>
+
+    <!-- Kleinchirurgie -->
+    <div class="crit-card" id="card-chir">
+      <div class="crit-header">
+        <div class="crit-name">Kleinchirurgie / Wundversorgung</div>
+        <div class="crit-badge badge-neutral" id="badge-chir">– –</div>
+      </div>
+      <div class="crit-gops">02300 · 02301 · 02302 · 02310 · 02311 · 02312 · 02313 · 31600</div>
+      <div class="crit-input-row">
+        <label>Leistungen</label>
+        <input type="number" id="in-chir" min="0" placeholder="0" oninput="save(); calcCrit('chir')">
+      </div>
+      <div class="crit-prog-track">
+        <div class="crit-prog-fill fill-neutral" id="fill-chir" style="width:0%"></div>
+        <div class="crit-marker" id="cmarker-chir" style="left:0%"></div>
+      </div>
+      <div class="crit-stats">
+        <span class="crit-pct" id="pct-chir">–</span>
+        <span>Ziel ≥ 3 %</span>
+      </div>
+    </div>
+
+    <!-- Ultraschall -->
+    <div class="crit-card" id="card-us">
+      <div class="crit-header">
+        <div class="crit-name">Ultraschalldiagnostik</div>
+        <div class="crit-badge badge-neutral" id="badge-us">– –</div>
+      </div>
+      <div class="crit-gops">33012 (Abdomen) · 33042 (Schilddrüse)</div>
+      <div class="crit-input-row">
+        <label>Leistungen</label>
+        <input type="number" id="in-us" min="0" placeholder="0" oninput="save(); calcCrit('us')">
+      </div>
+      <div class="crit-prog-track">
+        <div class="crit-prog-fill fill-neutral" id="fill-us" style="width:0%"></div>
+        <div class="crit-marker" id="cmarker-us" style="left:0%"></div>
+      </div>
+      <div class="crit-stats">
+        <span class="crit-pct" id="pct-us">–</span>
+        <span>Ziel ≥ 2 %</span>
+      </div>
+    </div>
+
+    <!-- Basisdiagnostik -->
+    <div class="crit-card" id="card-basis">
+      <div class="crit-header">
+        <div class="crit-name">Hausärztliche Basisdiagnostik</div>
+        <div class="crit-badge badge-neutral" id="badge-basis">– –</div>
+      </div>
+      <div class="crit-gops">03241 · 03321 · 03322 · 03324 · 03330<br>(LZ-RR · LZ-EKG · Belastungs-EKG · Spirographie)</div>
+      <div class="crit-input-row">
+        <label>Leistungen</label>
+        <input type="number" id="in-basis" min="0" placeholder="0" oninput="save(); calcCrit('basis')">
+      </div>
+      <div class="crit-prog-track">
+        <div class="crit-prog-fill fill-neutral" id="fill-basis" style="width:0%"></div>
+        <div class="crit-marker" id="cmarker-basis" style="left:0%"></div>
+      </div>
+      <div class="crit-stats">
+        <span class="crit-pct" id="pct-basis">–</span>
+        <span>Ziel ≥ 3 %</span>
+      </div>
+    </div>
+
+  </div><!-- /crit-grid -->
+
+  <!-- ─── Strukturelle Kriterien ───── -->
+  <div class="section-label">Strukturelle Kriterien</div>
+  <div class="check-grid">
+
+    <div class="check-card unchecked" id="card-zusammen" onclick="toggleCheck('zusammen')">
+      <div class="check-box" id="chk-zusammen"></div>
+      <div class="check-content">
+        <div class="check-name">Zusammenarbeit</div>
+        <div class="check-desc">Fachgleiche BAG (Hausärzte) <em>oder</em> regelmäßige Teilnahme an Qualitätszirkeln</div>
+      </div>
+    </div>
+
+    <div class="check-card unchecked" id="card-zeiten" onclick="toggleCheck('zeiten')">
+      <div class="check-box" id="chk-zeiten"></div>
+      <div class="check-content">
+        <div class="check-name">Sprechstunden / Praxisöffnungszeiten</div>
+        <div class="check-desc">Mind. 14-tägig: Mi oder Fr nach 15 Uhr <em>oder</em> Werktag nach 19 Uhr / vor 8 Uhr</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ─── Footer ────────────────────── -->
+  <div class="footer">
+    <div class="footer-note">
+      Quelle: <a href="https://www.kbv.de/praxis/abrechnung/vorhaltepauschale" target="_blank">KBV – Vorhaltepauschale</a> · BA-Beschluss 792 · In Kraft seit 01.01.2026 · Daten werden lokal gespeichert.
+    </div>
+    <div class="notion-hint">📋 Notion: netlify.com/drop → URL als /embed einfügen</div>
+  </div>
+
+</main>
+
+<!-- ═══════════ JAVASCRIPT ══════════ -->
+<script>
+// ── Konfiguration ─────────────────────────
+const CRITERIA = {
+  besuche:  { threshold: 5  },
+  geriatrie:{ threshold: 12 },
+  video:    { threshold: 1  },
+  pflege:   { threshold: 1  },
+  impf:     { threshold: 7  }, // Q4 = 25
+  chir:     { threshold: 3  },
+  us:       { threshold: 2  },
+  basis:    { threshold: 3  },
+};
+const KPI_KEYS  = ['besuche', 'geriatrie', 'video'];
+const CRIT_KEYS = ['pflege', 'impf', 'chir', 'us', 'basis'];
+const CHK_KEYS  = ['zusammen', 'zeiten'];
+
+// ── Storage (robust, iframe-sicher) ───────
+const STORE_KEY = 'vhp_v3';
+
+function save() {
+  try {
+    const now = new Date();
+    const d = {
+      q: qs('quartalSelect'), j: qs('jahrSelect'),
+      t: qs('totalCases'),
+      vals: {}, checks: {},
+      savedAt: now.toISOString()
+    };
+    [...KPI_KEYS, ...CRIT_KEYS].forEach(k => {
+      d.vals[k] = (document.getElementById('in-' + k) || {}).value || '';
+    });
+    CHK_KEYS.forEach(k => {
+      d.checks[k] = document.getElementById('card-' + k).classList.contains('checked');
+    });
+    localStorage.setItem(STORE_KEY, JSON.stringify(d));
+    showLastSaved(now);
+  } catch(e) { /* localStorage blocked in some iframes – fine */ }
+}
+
+function showLastSaved(date) {
+  const el = document.getElementById('lastSavedDisplay');
+  if (!el || !date) return;
+  const d = date instanceof Date ? date : new Date(date);
+  const str = d.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' })
+            + ' ' + d.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+  el.textContent = 'Stand: ' + str;
+}
+
+function load() {
+  try {
+    const raw = localStorage.getItem(STORE_KEY);
+    if (!raw) return;
+    const d = JSON.parse(raw);
+    if (d.q) sv('quartalSelect', d.q);
+    if (d.j) sv('jahrSelect', d.j);
+    if (d.t) sv('totalCases', d.t);
+    Object.entries(d.vals  || {}).forEach(([k,v]) => { const el = document.getElementById('in-'+k); if(el) el.value = v; });
+    Object.entries(d.checks|| {}).forEach(([k,v]) => { if(v) setCheck(k, true); });
+    if (d.savedAt) showLastSaved(new Date(d.savedAt));
+  } catch(e) {}
+}
+
+function qs(id) { return (document.getElementById(id)||{}).value || ''; }
+function sv(id, v) { const el = document.getElementById(id); if(el) el.value = v; }
+
+// ── Schwellenwert (Q4-Sonderregel Impf) ───
+function getThreshold(key) {
+  if (key === 'impf') return qs('quartalSelect') === 'Q4' ? 25 : 7;
+  return CRITERIA[key].threshold;
+}
+
+// ── Formatierung ──────────────────────────
+function fmtPct(v) {
+  return v.toLocaleString('de-DE', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + ' %';
+}
+
+// ── KPI-Karte berechnen ───────────────────
+function calcKpi(key) {
+  const total = parseInt(qs('totalCases')) || 0;
+  const count = parseInt((document.getElementById('in-'+key)||{}).value) || 0;
+  const thr   = getThreshold(key);
+  const hasData = total > 0;
+  const pct   = hasData ? (count / total) * 100 : 0;
+  const met   = hasData && pct >= thr;
+
+  // Prozentzahl
+  document.getElementById('pct-' + key).textContent = hasData ? fmtPct(pct) : '–';
+
+  // Progress bar: Skala 0 → 2×Ziel (damit Ziel bei 50% der Bar liegt)
+  const scale   = thr * 2;
+  const fillPct = hasData ? Math.min((pct / scale) * 100, 100) : 0;
+  const mrkLeft = Math.min((thr / scale) * 100, 100);
+
+  const fill = document.getElementById('fill-' + key);
+  fill.style.width = fillPct + '%';
+  fill.className   = 'prog-fill ' + (hasData ? (met ? 'fill-met' : 'fill-unmet') : 'fill-neutral');
+
+  document.getElementById('marker-' + key).style.left = mrkLeft + '%';
+
+  // Badge
+  const badge = document.getElementById('badge-' + key);
+  if (!hasData) { badge.textContent = '– –'; badge.className = 'kpi-badge badge-neutral'; }
+  else if (met) { badge.textContent = '✓ Erfüllt'; badge.className = 'kpi-badge badge-met'; }
+  else          { badge.textContent = '✗ Offen';   badge.className = 'kpi-badge badge-unmet'; }
+
+  // Card-State
+  const card = document.getElementById('card-' + key);
+  card.className = 'kpi-card' + (hasData ? (met ? ' state-met' : ' state-unmet') : '');
+
+  // Hinweis
+  const hintEl = document.getElementById('hint-' + key);
+  if (hintEl) {
+    if (!hasData) { hintEl.textContent = 'Behandlungsfälle oben eintragen.'; hintEl.className = 'prog-hint'; }
+    else if (met) {
+      hintEl.innerHTML = `<span class="hint-ok">✓ Ziel erreicht</span> (mind. ${Math.ceil(thr/100*total)} bei ${total} Fällen)`;
+      hintEl.className = 'prog-hint';
+    } else {
+      const needed = Math.ceil(thr / 100 * total);
+      hintEl.innerHTML = `<span class="hint-err">Noch ${needed - count} Leistung(en) nötig</span> (mind. ${needed} bei ${total} Fällen)`;
+      hintEl.className = 'prog-hint';
+    }
+  }
+
+  return met && hasData;
+}
+
+// ── Sekundäres Kriterium berechnen ────────
+function calcCrit(key) {
+  const total = parseInt(qs('totalCases')) || 0;
+  const count = parseInt((document.getElementById('in-'+key)||{}).value) || 0;
+  const thr   = getThreshold(key);
+  const hasData = total > 0;
+  const pct   = hasData ? (count / total) * 100 : 0;
+  const met   = hasData && pct >= thr;
+
+  document.getElementById('pct-' + key).textContent = hasData ? fmtPct(pct) : '–';
+
+  const scale   = thr * 2;
+  const fillPct = hasData ? Math.min((pct / scale) * 100, 100) : 0;
+  const mrkLeft = Math.min((thr / scale) * 100, 100);
+
+  const fill = document.getElementById('fill-' + key);
+  fill.style.width = fillPct + '%';
+  fill.className   = 'crit-prog-fill ' + (hasData ? (met ? 'fill-met' : 'fill-unmet') : 'fill-neutral');
+
+  document.getElementById('cmarker-' + key).style.left = mrkLeft + '%';
+
+  const badge = document.getElementById('badge-' + key);
+  if (!hasData) { badge.textContent = '– –'; badge.className = 'crit-badge badge-neutral'; }
+  else if (met) { badge.textContent = '✓';   badge.className = 'crit-badge badge-met'; }
+  else          { badge.textContent = '✗';   badge.className = 'crit-badge badge-unmet'; }
+
+  const card = document.getElementById('card-' + key);
+  if (card) card.className = 'crit-card' + (hasData ? (met ? ' state-met' : ' state-unmet') : '');
+
+  // Sonderlogik Impfungen
+  if (key === 'impf') {
+    const q = qs('quartalSelect');
+    document.getElementById('ziel-impf').textContent = q === 'Q4' ? 'Ziel ≥ 25 % (Q4)' : 'Ziel ≥ 7 % (Q1–Q3)';
+    const warnEl = document.getElementById('impf-warning');
+    if (warnEl) {
+      const rawCount = parseInt((document.getElementById('in-impf')||{}).value) || 0;
+      warnEl.textContent = (rawCount > 0 && rawCount < 10)
+        ? '⚠ Unter 10 Impfungen → 40 % Abschlag auf GOP 03040!' : '';
+    }
+  }
+
+  return met && hasData;
+}
+
+// ── Checkbox ──────────────────────────────
+function toggleCheck(key) {
+  const isChecked = document.getElementById('card-'+key).classList.contains('checked');
+  setCheck(key, !isChecked);
+  save();
+  updateSummary();
+}
+function setCheck(key, val) {
+  const card = document.getElementById('card-'+key);
+  const box  = document.getElementById('chk-'+key);
+  if (val) { card.classList.remove('unchecked'); card.classList.add('checked'); box.textContent = '✓'; }
+  else     { card.classList.remove('checked'); card.classList.add('unchecked'); box.textContent = ''; }
+}
+
+// ── Zusammenfassung ───────────────────────
+function updateSummary() {
+  const total = parseInt(qs('totalCases')) || 0;
+  let met = 0;
+
+  [...KPI_KEYS, ...CRIT_KEYS].forEach(k => {
+    const count = parseInt((document.getElementById('in-'+k)||{}).value) || 0;
+    const pct   = total > 0 ? (count / total) * 100 : 0;
+    if (total > 0 && pct >= getThreshold(k)) met++;
+  });
+  CHK_KEYS.forEach(k => {
+    if (document.getElementById('card-'+k).classList.contains('checked')) met++;
+  });
+
+  let pts, gop, pillClass;
+  if (met >= 8)      { pts = '158 Pkt.'; gop = 'GOP 03040 + 03042 (Zuschlag II, +30 Pkt.)'; pillClass = 'pill pill-green'; }
+  else if (met >= 2) { pts = '138 Pkt.'; gop = 'GOP 03040 + 03041 (Zuschlag I, +10 Pkt.)'; pillClass = 'pill pill-amber'; }
+  else               { pts = '128 Pkt.'; gop = 'GOP 03040 – kein Zuschlag';                 pillClass = 'pill pill-rust';  }
+
+  document.getElementById('bonusPts').textContent = pts;
+  document.getElementById('bonusGop').textContent = gop;
+
+  const zuschlagLabel = met >= 8 ? 'Zuschlag II erreicht ✓' :
+                        met >= 2 ? 'Zuschlag I erreicht' : 'Kein Zuschlag';
+
+  document.getElementById('summaryPills').innerHTML = `
+    <span class="${pillClass}">
+      <span class="pill-dot"></span>
+      ${met} / 10 Kriterien erfüllt
+    </span>
+    <span class="${pillClass}">
+      <span class="pill-dot"></span>
+      ${zuschlagLabel}
+    </span>`;
+}
+
+// ── Alles neu berechnen ───────────────────
+function calcAll() {
+  KPI_KEYS.forEach(k  => calcKpi(k));
+  CRIT_KEYS.forEach(k => calcCrit(k));
+  updateSummary();
+}
+
+// ── Init ──────────────────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+  load();
+  calcAll();
+});
+</script>
+
+</body>
+</html>
