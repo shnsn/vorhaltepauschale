@@ -3,38 +3,31 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <!--
-    ════════════════════════════════════════════
-    NOTION-INTEGRATION:
-    1. Diese Datei auf netlify.com/drop hochladen
-       (einfach reinziehen → kostenlos, sofort live)
-    2. Die generierte URL kopieren
-    3. In Notion: /embed → URL einfügen
-    4. Embed-Höhe in Notion auf ca. 900px einstellen
-    ════════════════════════════════════════════
-  -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
   <title>Vorhaltepauschale 2026</title>
   <style>
-    /* ══ PRAXISFARBEN – Gollierplatz / Romanplatz ══ */
+    /* ══ PRAXISFARBEN ═══════════════════════════════════════ */
     :root {
-      --praxis:       #924E7D;   /* Praxisfarbe Original */
-      --primary:      #A86098;   /* Etwas heller – Header-Hintergrund */
-      --primary-dark: #6B3860;   /* Dunkel – Schrift auf hellem BG */
-      --primary-light:#C08AB4;   /* Hell – Akzente, KPI-Border */
-      --primary-pale: #FFFFFF;   /* Weiß – Seitenhintergrund */
-      --primary-bg:   #EDD8E8;   /* Helles Lila – Success-ähnliche Badges */
-      --warm-white:   #FFFFFF;
-      --warm-border:  #E4D3DF;
-      --warm-muted:   #8A7082;
-      --text:         #2C2030;
-      --text-light:   #5C4E58;
-      --success:      #3D7A4A;   /* Grün – Kriterium erfüllt (semantisch grün bleibt) */
-      --success-pale: #E6F4EA;
-      --success-bg:   #E6F4EA;
-      --amber:        #B07030;
-      --amber-pale:   #FDF3E3;
-      --rust:         #B04A35;
-      --rust-pale:    #FAEAE7;
+      --praxis:        #924E7D;
+      --primary:       #A86098;
+      --primary-dark:  #6B3860;
+      --primary-light: #C08AB4;
+      --primary-pale:  #FFFFFF;
+      --primary-bg:    #EDD8E8;
+      --warm-white:    #FFFFFF;
+      --warm-border:   #E4D3DF;
+      --warm-muted:    #8A7082;
+      --text:          #2C2030;
+      --text-light:    #5C4E58;
+      --success:       #3D7A4A;
+      --success-pale:  #E6F4EA;
+      --success-bg:    #E6F4EA;
+      --amber:         #B07030;
+      --amber-pale:    #FDF3E3;
+      --rust:          #B04A35;
+      --rust-pale:     #FAEAE7;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -47,7 +40,75 @@
       font-size: 14px;
     }
 
-    /* ══ HEADER ══════════════════════════════ */
+    /* ══ PAT MODAL ═══════════════════════════════════════════ */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.52);
+      z-index: 999;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal-box {
+      background: #fff;
+      border-radius: 14px;
+      padding: 28px 30px;
+      max-width: 440px;
+      width: calc(100% - 40px);
+      box-shadow: 0 12px 48px rgba(0,0,0,0.22);
+    }
+    .modal-box h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--primary-dark);
+      margin-bottom: 6px;
+    }
+    .modal-box p {
+      font-size: 0.78rem;
+      color: var(--warm-muted);
+      margin-bottom: 16px;
+      line-height: 1.5;
+    }
+    .modal-box input[type="password"],
+    .modal-box input[type="text"] {
+      width: 100%;
+      border: 1.5px solid var(--warm-border);
+      border-radius: 8px;
+      padding: 9px 12px;
+      font-size: 0.88rem;
+      font-family: monospace;
+      color: var(--text);
+      background: #fafafa;
+      outline: none;
+      margin-bottom: 14px;
+    }
+    .modal-box input:focus { border-color: var(--primary); background: #fff; }
+    .modal-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+    .modal-btns button {
+      padding: 7px 16px;
+      border-radius: 7px;
+      border: none;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .btn-primary { background: var(--praxis); color: #fff; }
+    .btn-primary:hover { background: var(--primary-dark); }
+    .btn-secondary { background: var(--primary-bg); color: var(--primary-dark); }
+    .btn-secondary:hover { background: #DFC7DB; }
+    .btn-danger { background: var(--rust-pale); color: var(--rust); }
+    .btn-danger:hover { background: #f5d3cc; }
+    .modal-status {
+      margin-top: 12px;
+      font-size: 0.75rem;
+      min-height: 1.2em;
+    }
+    .status-ok  { color: var(--success); font-weight: 600; }
+    .status-err { color: var(--rust);    font-weight: 600; }
+
+    /* ══ HEADER ══════════════════════════════════════════════ */
     header {
       background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
       color: #fff;
@@ -60,41 +121,13 @@
       flex-wrap: wrap;
       gap: 14px;
     }
-    .header-brand {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-    }
-    /* Stilisierter Baum als SVG-Icon (analog zur Praxis-Website) */
-    .brand-icon {
-      width: 36px;
-      height: 36px;
-      flex-shrink: 0;
-      opacity: 0.92;
-    }
-    .header-title h1 {
-      font-size: 1.1rem;
-      font-weight: 700;
-      letter-spacing: -0.2px;
-      line-height: 1.2;
-    }
-    .header-title p {
-      font-size: 0.72rem;
-      opacity: 0.65;
-      margin-top: 3px;
-    }
+    .header-brand { display: flex; align-items: center; gap: 14px; }
+    .brand-icon { width: 36px; height: 36px; flex-shrink: 0; opacity: 0.92; }
+    .header-title h1 { font-size: 1.1rem; font-weight: 700; letter-spacing: -0.2px; line-height: 1.2; }
+    .header-title p  { font-size: 0.72rem; opacity: 0.65; margin-top: 3px; }
 
-    .header-controls {
-      display: flex;
-      align-items: flex-end;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-    .ctrl-group {
-      display: flex;
-      flex-direction: column;
-      gap: 3px;
-    }
+    .header-controls { display: flex; align-items: flex-end; gap: 10px; flex-wrap: wrap; }
+    .ctrl-group { display: flex; flex-direction: column; gap: 3px; }
     .ctrl-group label {
       font-size: 0.62rem;
       text-transform: uppercase;
@@ -113,15 +146,27 @@
     }
     .ctrl-group select { width: 120px; }
     .ctrl-group input[type="number"] { width: 130px; }
-    .ctrl-group select option { background: var(--green-dark); }
-    .ctrl-group input::placeholder { color: rgba(255,255,255,0.4); }
     .ctrl-group select:focus,
-    .ctrl-group input:focus {
-      border-color: rgba(255,255,255,0.6);
-      background: rgba(255,255,255,0.2);
-    }
+    .ctrl-group input:focus { border-color: rgba(255,255,255,0.6); background: rgba(255,255,255,0.2); }
+    .ctrl-group input::placeholder { color: rgba(255,255,255,0.4); }
 
-    /* ══ SUMMARY BANNER ══════════════════════ */
+    .gh-config-btn {
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.3);
+      color: #fff;
+      border-radius: 7px;
+      padding: 6px 13px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      align-self: flex-end;
+      transition: background 0.15s;
+    }
+    .gh-config-btn:hover { background: rgba(255,255,255,0.25); }
+    .gh-config-btn.connected { background: rgba(61,122,74,0.45); border-color: rgba(100,200,120,0.5); }
+
+    /* ══ SUMMARY BANNER ══════════════════════════════════════ */
     .summary {
       background: var(--warm-white);
       border-top: 3px solid var(--praxis);
@@ -156,13 +201,72 @@
       color: var(--primary-dark);
       line-height: 1;
     }
-    .bonus-display .bonus-gop {
-      font-size: 0.68rem;
+    .bonus-display .bonus-gop { font-size: 0.68rem; color: var(--warm-muted); margin-top: 2px; }
+
+    .save-btn {
+      font-size: 0.82rem;
+      font-weight: 700;
+      padding: 8px 22px;
+      border-radius: 8px;
+      border: 2px solid var(--warm-border);
+      cursor: default;
+      transition: background 0.2s, border-color 0.2s, color 0.2s, transform 0.1s;
+      background: transparent;
       color: var(--warm-muted);
-      margin-top: 2px;
+      white-space: nowrap;
+    }
+    .save-btn.dirty {
+      background: var(--praxis);
+      border-color: var(--praxis);
+      color: #fff;
+      cursor: pointer;
+    }
+    .save-btn.dirty:hover { background: var(--primary-dark); border-color: var(--primary-dark); transform: translateY(-1px); }
+    .save-btn.dirty:active { transform: translateY(0); }
+    .save-btn.saved { background: var(--success); border-color: var(--success); color: #fff; cursor: default; }
+
+    /* ══ QUARTAL-FORTSCHRITTSBALKEN (F) ══════════════════════ */
+    .quarter-bar-wrap {
+      background: var(--warm-white);
+      border-bottom: 1px solid var(--warm-border);
+      padding: 10px 28px 13px;
+    }
+    .quarter-bar-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 6px;
+    }
+    .qb-title {
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--warm-muted);
+      font-weight: 600;
+    }
+    .qb-info { font-size: 0.72rem; color: var(--primary-dark); font-weight: 700; }
+    .qb-track {
+      position: relative;
+      height: 8px;
+      background: var(--primary-bg);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .qb-fill {
+      height: 100%;
+      border-radius: 4px;
+      background: linear-gradient(90deg, var(--primary-light), var(--praxis));
+      transition: width 0.5s ease;
+    }
+    .qb-dates {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 4px;
+      font-size: 0.62rem;
+      color: var(--warm-muted);
     }
 
-    /* ══ MAIN LAYOUT ═════════════════════════ */
+    /* ══ MAIN LAYOUT ══════════════════════════════════════════ */
     main { padding: 20px 28px 36px; }
 
     .section-label {
@@ -183,7 +287,97 @@
       background: var(--warm-border);
     }
 
-    /* ══ KPI CARDS ═══════════════════════════ */
+    /* ══ WAS FEHLT (E) ═══════════════════════════════════════ */
+    .whats-missing-card {
+      background: var(--warm-white);
+      border: 1px solid var(--warm-border);
+      border-left: 3px solid var(--primary);
+      border-radius: 10px;
+      padding: 16px 18px;
+      margin-bottom: 22px;
+      font-size: 0.82rem;
+      line-height: 1.6;
+      color: var(--text);
+    }
+    .whats-missing-card.achieved { border-left-color: var(--success); }
+    .wm-placeholder { color: var(--warm-muted); font-style: italic; }
+    .wm-line { margin-bottom: 4px; }
+    .wm-missing-chips { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 6px; }
+    .wm-chip {
+      font-size: 0.7rem;
+      padding: 2px 9px;
+      border-radius: 10px;
+      background: var(--rust-pale);
+      color: var(--rust);
+      font-weight: 600;
+    }
+    .wm-chip.close {
+      background: var(--amber-pale);
+      color: var(--amber);
+    }
+
+    /* ══ PROJEKTION (D) ══════════════════════════════════════ */
+    .proj-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 10px;
+      margin-bottom: 22px;
+    }
+    .proj-summary-card {
+      background: var(--primary-bg);
+      border: 1px solid var(--warm-border);
+      border-radius: 10px;
+      padding: 14px 16px;
+      grid-column: 1 / -1;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+    .proj-summary-number {
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--primary-dark);
+      line-height: 1;
+    }
+    .proj-summary-label { font-size: 0.75rem; color: var(--text-light); line-height: 1.4; }
+    .proj-summary-tier {
+      font-size: 0.8rem;
+      font-weight: 700;
+      padding: 4px 14px;
+      border-radius: 20px;
+    }
+    .proj-card {
+      background: var(--warm-white);
+      border: 1px solid var(--warm-border);
+      border-left: 3px solid var(--primary-light);
+      border-radius: 9px;
+      padding: 12px 14px;
+      font-size: 0.75rem;
+    }
+    .proj-card.will-meet   { border-left-color: var(--success); }
+    .proj-card.wont-meet   { border-left-color: var(--rust); }
+    .proj-name { font-weight: 700; color: var(--primary-dark); margin-bottom: 5px; font-size: 0.78rem; }
+    .proj-values { color: var(--warm-muted); font-size: 0.7rem; }
+    .proj-pct {
+      font-size: 1rem;
+      font-weight: 800;
+      color: var(--text);
+      margin: 3px 0;
+    }
+    .proj-note { font-size: 0.65rem; color: var(--warm-muted); margin-top: 8px; font-style: italic; }
+    .proj-seasonal-badge {
+      font-size: 0.65rem;
+      padding: 2px 8px;
+      border-radius: 6px;
+      background: var(--amber-pale);
+      color: var(--amber);
+      font-weight: 600;
+      margin-top: 3px;
+      display: inline-block;
+    }
+
+    /* ══ KPI CARDS ════════════════════════════════════════════ */
     .kpi-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -255,12 +449,9 @@
       outline: none;
       transition: border-color 0.15s, background 0.15s;
     }
-    .input-block input:focus {
-      border-color: var(--primary);
-      background: #fff;
-    }
+    .input-block input:focus { border-color: var(--primary); background: #fff; }
 
-    /* ── Progress Bar ─────────────────────── */
+    /* Progress Bars */
     .prog-labels {
       display: flex;
       justify-content: space-between;
@@ -306,17 +497,9 @@
       color: var(--primary-dark);
       white-space: nowrap;
     }
+    .prog-hint { margin-top: 20px; font-size: 0.68rem; color: var(--warm-muted); min-height: 1em; }
 
-    .prog-hint {
-      margin-top: 20px;
-      font-size: 0.68rem;
-      color: var(--warm-muted);
-      min-height: 1em;
-    }
-    .hint-ok  { color: var(--green-mid); font-weight: 600; }
-    .hint-err { color: var(--rust); }
-
-    /* ══ SEKUNDÄRE KRITERIEN ═════════════════ */
+    /* ══ SEKUNDÄRE KRITERIEN ══════════════════════════════════ */
     .crit-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
@@ -344,27 +527,11 @@
       gap: 6px;
       margin-bottom: 4px;
     }
-    .crit-name { font-size: 0.78rem; font-weight: 700; color: var(--primary-dark); }
-    .crit-badge {
-      font-size: 0.6rem;
-      font-weight: 700;
-      padding: 1px 6px;
-      border-radius: 6px;
-    }
-    .crit-gops {
-      font-size: 0.6rem;
-      color: var(--warm-muted);
-      font-family: monospace;
-      margin-bottom: 10px;
-      line-height: 1.5;
-    }
+    .crit-name  { font-size: 0.78rem; font-weight: 700; color: var(--primary-dark); }
+    .crit-badge { font-size: 0.6rem; font-weight: 700; padding: 1px 6px; border-radius: 6px; }
+    .crit-gops  { font-size: 0.6rem; color: var(--warm-muted); font-family: monospace; margin-bottom: 10px; line-height: 1.5; }
 
-    .crit-input-row {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 10px;
-    }
+    .crit-input-row { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
     .crit-input-row label {
       font-size: 0.6rem;
       color: var(--warm-muted);
@@ -384,10 +551,7 @@
       outline: none;
       transition: border-color 0.15s, background 0.15s;
     }
-    .crit-input-row input:focus {
-      border-color: var(--primary);
-      background: #fff;
-    }
+    .crit-input-row input:focus { border-color: var(--primary); background: #fff; }
 
     .crit-prog-track {
       position: relative;
@@ -403,23 +567,11 @@
       transition: width 0.45s cubic-bezier(.4,0,.2,1), background 0.3s;
       max-width: 100%;
     }
-    .crit-marker {
-      position: absolute;
-      top: -3px;
-      bottom: -3px;
-      width: 2px;
-      background: var(--primary-dark);
-      border-radius: 2px;
-    }
-    .crit-stats {
-      display: flex;
-      justify-content: space-between;
-      font-size: 0.66rem;
-      color: var(--warm-muted);
-    }
-    .crit-pct { font-weight: 700; font-size: 0.78rem; color: var(--text); }
+    .crit-marker { position: absolute; top: -3px; bottom: -3px; width: 2px; background: var(--primary-dark); border-radius: 2px; }
+    .crit-stats  { display: flex; justify-content: space-between; font-size: 0.66rem; color: var(--warm-muted); }
+    .crit-pct    { font-weight: 700; font-size: 0.78rem; color: var(--text); }
 
-    /* ══ CHECKBOX-KRITERIEN ══════════════════ */
+    /* ══ CHECKBOX-KRITERIEN ═══════════════════════════════════ */
     .check-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
@@ -440,10 +592,7 @@
       user-select: none;
     }
     .check-card:hover { box-shadow: 0 2px 10px rgba(146,78,125,0.10); }
-    .check-card.checked {
-      border-left-color: var(--success);
-      background: var(--success-pale);
-    }
+    .check-card.checked { border-left-color: var(--success); background: var(--success-pale); }
     .check-box {
       width: 20px;
       height: 20px;
@@ -459,15 +608,52 @@
       transition: background 0.2s, border-color 0.2s;
       margin-top: 1px;
     }
-    .check-card.checked .check-box {
-      background: var(--success);
-      border-color: var(--success);
-    }
-    .check-content {}
+    .check-card.checked .check-box { background: var(--success); border-color: var(--success); }
     .check-name { font-size: 0.78rem; font-weight: 700; color: var(--primary-dark); margin-bottom: 3px; }
     .check-desc { font-size: 0.68rem; color: var(--warm-muted); line-height: 1.4; }
 
-    /* ══ FOOTER ══════════════════════════════ */
+    /* ══ HISTORIETABELLE (C) ══════════════════════════════════ */
+    .hist-wrap {
+      background: var(--warm-white);
+      border: 1px solid var(--warm-border);
+      border-radius: 12px;
+      overflow: hidden;
+      margin-bottom: 24px;
+    }
+    .hist-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.78rem;
+    }
+    .hist-table th {
+      background: var(--primary-bg);
+      color: var(--primary-dark);
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 9px 14px;
+      text-align: left;
+      font-weight: 700;
+    }
+    .hist-table td {
+      padding: 10px 14px;
+      border-top: 1px solid var(--warm-border);
+      color: var(--text);
+    }
+    .hist-table tr:hover td { background: #faf7fb; }
+    .tier-badge {
+      display: inline-block;
+      padding: 2px 9px;
+      border-radius: 8px;
+      font-size: 0.68rem;
+      font-weight: 700;
+    }
+    .tier-ii  { background: var(--success-pale); color: var(--success); }
+    .tier-i   { background: var(--amber-pale);   color: var(--amber); }
+    .tier-0   { background: var(--rust-pale);    color: var(--rust); }
+    .hist-empty { padding: 16px; text-align: center; color: var(--warm-muted); font-size: 0.8rem; }
+
+    /* ══ FOOTER ══════════════════════════════════════════════ */
     .footer {
       border-top: 1px solid var(--warm-border);
       padding-top: 14px;
@@ -478,43 +664,14 @@
       flex-wrap: wrap;
       gap: 8px;
     }
-    .footer-note {
-      font-size: 0.65rem;
-      color: var(--warm-muted);
-      line-height: 1.6;
-    }
+    .footer-note { font-size: 0.65rem; color: var(--warm-muted); line-height: 1.6; }
     .footer-note a { color: var(--primary); text-decoration: none; }
-    .save-btn {
-      font-size: 0.82rem;
-      font-weight: 700;
-      padding: 8px 22px;
-      border-radius: 8px;
-      border: 2px solid var(--warm-border);
-      cursor: default;
-      transition: background 0.2s, border-color 0.2s, color 0.2s, transform 0.1s;
-      background: transparent;
-      color: var(--warm-muted);
-      white-space: nowrap;
-    }
-    .save-btn.dirty {
-      background: var(--praxis);
-      border-color: var(--praxis);
-      color: #fff;
-      cursor: pointer;
-    }
-    .save-btn.dirty:hover { background: var(--primary-dark); border-color: var(--primary-dark); transform: translateY(-1px); }
-    .save-btn.dirty:active { transform: translateY(0); }
-    .save-btn.saved {
-      background: var(--success);
-      border-color: var(--success);
-      color: #fff;
-      cursor: default;
-    }
 
-    /* ══ RESPONSIVE ══════════════════════════ */
+    /* ══ RESPONSIVE ══════════════════════════════════════════ */
     @media (max-width: 600px) {
       header { padding: 16px 18px; }
       .summary { padding: 12px 18px; }
+      .quarter-bar-wrap { padding: 10px 18px 12px; }
       main { padding: 16px 18px 28px; }
       .ctrl-group select { width: 100px; }
       .ctrl-group input[type="number"] { width: 110px; }
@@ -523,11 +680,26 @@
 </head>
 <body>
 
+<!-- ═══════════ PAT MODAL ═══════════ -->
+<div class="modal-overlay" id="patModal">
+  <div class="modal-box">
+    <h3>GitHub-Integration</h3>
+    <p>Personal Access Token (PAT) mit <code>repo</code>-Schreibrecht für <strong>shnsn/vorhaltepauschale</strong>.<br>
+    Daten werden dann automatisch bei jedem Update gesichert und in der Historieanzeige sichtbar.</p>
+    <input type="password" id="patInput" placeholder="ghp_xxxxxxxxxxxx" autocomplete="off">
+    <div class="modal-btns">
+      <button class="btn-primary" onclick="doSavePat()">Speichern &amp; verbinden</button>
+      <button class="btn-secondary" onclick="closePatModal()">Abbrechen</button>
+      <button class="btn-danger" onclick="doClearPat()">PAT entfernen</button>
+    </div>
+    <div class="modal-status" id="patStatus"></div>
+  </div>
+</div>
+
 <!-- ═══════════ HEADER ═══════════ -->
 <header>
   <div class="header-inner">
     <div class="header-brand">
-      <!-- Stilisierter Baum (Praxis-Motiv) -->
       <svg class="brand-icon" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M18 3 C12 10, 7 13, 9 18 C11 22, 14 20, 18 22 C22 20, 25 22, 27 18 C29 13, 24 10, 18 3Z" fill="rgba(255,255,255,0.7)"/>
         <path d="M18 10 C14 15, 10 17, 12 21 C14 24, 16 22, 18 24 C20 22, 22 24, 24 21 C26 17, 22 15, 18 10Z" fill="rgba(255,255,255,0.5)"/>
@@ -542,7 +714,7 @@
     <div class="header-controls">
       <div class="ctrl-group">
         <label>Quartal</label>
-        <select id="quartalSelect" onchange="calcAll(); markDirty()">
+        <select id="quartalSelect" onchange="onQuarterChange()">
           <option value="Q1">Q1 (Jan–Mär)</option>
           <option value="Q2">Q2 (Apr–Jun)</option>
           <option value="Q3">Q3 (Jul–Sep)</option>
@@ -551,7 +723,7 @@
       </div>
       <div class="ctrl-group">
         <label>Jahr</label>
-        <select id="jahrSelect" onchange="calcAll(); markDirty()">
+        <select id="jahrSelect" onchange="onQuarterChange()">
           <option value="2025">2025</option>
           <option value="2026" selected>2026</option>
           <option value="2027">2027</option>
@@ -562,6 +734,7 @@
         <input type="number" id="totalCases" min="0" placeholder="z.B. 1000"
                oninput="calcAll(); markDirty()">
       </div>
+      <button class="gh-config-btn" id="ghBtn" onclick="openPatModal()">⚙ GitHub</button>
     </div>
   </div>
 </header>
@@ -581,8 +754,33 @@
   </div>
 </div>
 
+<!-- ═══════════ QUARTAL-FORTSCHRITTSBALKEN (F) ═══════════ -->
+<div class="quarter-bar-wrap">
+  <div class="quarter-bar-meta">
+    <span class="qb-title">Quartalsverlauf</span>
+    <span class="qb-info" id="qbInfo">–</span>
+  </div>
+  <div class="qb-track">
+    <div class="qb-fill" id="qbFill" style="width:0%"></div>
+  </div>
+  <div class="qb-dates">
+    <span id="qbStart">–</span>
+    <span id="qbEnd">–</span>
+  </div>
+</div>
+
 <!-- ═══════════ MAIN ═══════════════ -->
 <main>
+
+  <!-- ─── Nächste Stufe (E) ─────────── -->
+  <div class="section-label">Nächste Stufe</div>
+  <div class="whats-missing-card" id="whatsMissing">
+    <p class="wm-placeholder">Behandlungsfälle und Kriterien eintragen für eine Analyse.</p>
+  </div>
+
+  <!-- ─── Hochrechnung (D) ──────────── -->
+  <div class="section-label" id="projLabel" style="display:none">Hochrechnung Quartalsende</div>
+  <div id="projSection" style="display:none" class="proj-grid"></div>
 
   <!-- ─── Getrackte KPIs ──────────── -->
   <div class="section-label">Getrackte KPIs</div>
@@ -677,7 +875,6 @@
   <div class="section-label">Weitere Kriterien</div>
   <div class="crit-grid">
 
-    <!-- Kooperation Pflegeheim -->
     <div class="crit-card" id="card-pflege">
       <div class="crit-header">
         <div class="crit-name">Kooperation Pflegeheim</div>
@@ -698,7 +895,6 @@
       </div>
     </div>
 
-    <!-- Schutzimpfungen -->
     <div class="crit-card" id="card-impf">
       <div class="crit-header">
         <div class="crit-name">Schutzimpfungen</div>
@@ -720,7 +916,6 @@
       <div style="font-size:0.6rem; color:var(--amber); margin-top:6px; font-weight:600" id="impf-warning"></div>
     </div>
 
-    <!-- Kleinchirurgie -->
     <div class="crit-card" id="card-chir">
       <div class="crit-header">
         <div class="crit-name">Kleinchirurgie / Wundversorgung</div>
@@ -741,7 +936,6 @@
       </div>
     </div>
 
-    <!-- Ultraschall -->
     <div class="crit-card" id="card-us">
       <div class="crit-header">
         <div class="crit-name">Ultraschalldiagnostik</div>
@@ -762,7 +956,6 @@
       </div>
     </div>
 
-    <!-- Basisdiagnostik -->
     <div class="crit-card" id="card-basis">
       <div class="crit-header">
         <div class="crit-name">Hausärztliche Basisdiagnostik</div>
@@ -807,10 +1000,28 @@
 
   </div>
 
+  <!-- ─── Historische Quartale (C) ─── -->
+  <div class="section-label" id="histLabel" style="display:none">Historische Quartale</div>
+  <div id="histSection" style="display:none" class="hist-wrap">
+    <table class="hist-table">
+      <thead>
+        <tr>
+          <th>Quartal</th>
+          <th>Fälle</th>
+          <th>Kriterien</th>
+          <th>Zuschlag</th>
+          <th>Punkte</th>
+          <th>Gespeichert</th>
+        </tr>
+      </thead>
+      <tbody id="histBody"></tbody>
+    </table>
+  </div>
+
   <!-- ─── Footer ────────────────────── -->
   <div class="footer">
     <div class="footer-note">
-      Quelle: <a href="https://www.kbv.de/praxis/abrechnung/vorhaltepauschale" target="_blank">KBV – Vorhaltepauschale</a> · BA-Beschluss 792 · In Kraft seit 01.01.2026 · Daten werden lokal gespeichert.
+      Quelle: <a href="https://www.kbv.de/praxis/abrechnung/vorhaltepauschale" target="_blank">KBV – Vorhaltepauschale</a> · BA-Beschluss 792 · In Kraft seit 01.01.2026 · Lokaler Speicher + GitHub-Backup.
     </div>
   </div>
 
@@ -818,25 +1029,84 @@
 
 <!-- ═══════════ JAVASCRIPT ══════════ -->
 <script>
-// ── Konfiguration ─────────────────────────
+// ══════════════════════════════════════════════════════════════
+// KONFIGURATION
+// ══════════════════════════════════════════════════════════════
+const GH_OWNER = 'shnsn';
+const GH_REPO  = 'vorhaltepauschale';
+const GH_FILE  = 'data.json';
+const GH_API   = `https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/${GH_FILE}`;
+
 const CRITERIA = {
-  besuche:  { threshold: 5  },
-  geriatrie:{ threshold: 12 },
-  video:    { threshold: 1  },
-  pflege:   { threshold: 1  },
-  impf:     { threshold: 7  }, // Q4 = 25
-  chir:     { threshold: 3  },
-  us:       { threshold: 2  },
-  basis:    { threshold: 3  },
+  besuche:  { threshold: 5,  label: 'Hausbesuche' },
+  geriatrie:{ threshold: 12, label: 'Geriatrie/Palliativ' },
+  video:    { threshold: 1,  label: 'Videosprechstunde' },
+  pflege:   { threshold: 1,  label: 'Kooperation Pflegeheim' },
+  impf:     { threshold: 7,  label: 'Schutzimpfungen' },
+  chir:     { threshold: 3,  label: 'Kleinchirurgie' },
+  us:       { threshold: 2,  label: 'Ultraschall' },
+  basis:    { threshold: 3,  label: 'Basisdiagnostik' },
 };
 const KPI_KEYS  = ['besuche', 'geriatrie', 'video'];
 const CRIT_KEYS = ['pflege', 'impf', 'chir', 'us', 'basis'];
 const CHK_KEYS  = ['zusammen', 'zeiten'];
+const CHK_LABELS = { zusammen: 'Zusammenarbeit', zeiten: 'Öffnungszeiten' };
 
-// ── Level-Tracking ─────────────────────────
-let savedLevel = 0;   // gespeicherter Stand: Anzahl erfüllter Kriterien
-let currentLevel = 0; // aktueller Stand (ungespeichert)
+// ══════════════════════════════════════════════════════════════
+// ZUSTAND
+// ══════════════════════════════════════════════════════════════
+let savedLevel   = 0;
+let currentLevel = 0;
+let ghSha        = null;
+let ghData       = { quarters: {} };
 
+// ══════════════════════════════════════════════════════════════
+// QUARTAL-HILFSFUNKTIONEN (F)
+// ══════════════════════════════════════════════════════════════
+function quarterDates(q, year) {
+  const y = parseInt(year);
+  const starts = { Q1:[0,1],  Q2:[3,1],  Q3:[6,1],  Q4:[9,1]  };
+  const ends   = { Q1:[2,31], Q2:[5,30], Q3:[8,30], Q4:[11,31] };
+  const s = starts[q], e = ends[q];
+  return {
+    start: new Date(y, s[0], s[1]),
+    end:   new Date(y, e[0], e[1])
+  };
+}
+
+function quarterProgress(q, year) {
+  const { start, end } = quarterDates(q, year);
+  const today = new Date(); today.setHours(0,0,0,0);
+  const total   = Math.round((end - start) / 864e5) + 1;
+  const elapsed = Math.max(0, Math.min(Math.round((today - start) / 864e5) + 1, total));
+  return { total, elapsed, start, end, pct: elapsed / total, isActive: today >= start && today <= end };
+}
+
+function fmtDate(d) {
+  return d.toLocaleDateString('de-DE', { day:'2-digit', month:'2-digit', year:'numeric' });
+}
+
+function updateQuarterBar() {
+  const q    = qs('quartalSelect');
+  const year = qs('jahrSelect');
+  const { total, elapsed, start, end, isActive } = quarterProgress(q, year);
+
+  document.getElementById('qbStart').textContent = fmtDate(start);
+  document.getElementById('qbEnd').textContent   = fmtDate(end);
+  document.getElementById('qbFill').style.width  = (elapsed / total * 100).toFixed(1) + '%';
+
+  if (isActive) {
+    document.getElementById('qbInfo').textContent = `Tag ${elapsed} von ${total} (${Math.round(elapsed/total*100)} %)`;
+  } else {
+    const today = new Date(); today.setHours(0,0,0,0);
+    document.getElementById('qbInfo').textContent =
+      today < start ? 'Quartal noch nicht begonnen' : 'Quartal abgeschlossen';
+  }
+}
+
+// ══════════════════════════════════════════════════════════════
+// BONUS / LEVEL
+// ══════════════════════════════════════════════════════════════
 function getBonusTier(metCount) {
   if (metCount >= 8) return 3;
   if (metCount >= 2) return 2;
@@ -849,7 +1119,9 @@ function tierLabel(tier) {
   return '128 Pkt. (kein Zuschlag)';
 }
 
-// ── Dirty-State (Button + Level-Hinweis) ──
+// ══════════════════════════════════════════════════════════════
+// DIRTY STATE
+// ══════════════════════════════════════════════════════════════
 function markDirty() {
   const btn  = document.getElementById('saveBtn');
   const hint = document.getElementById('levelChangeHint');
@@ -860,9 +1132,7 @@ function markDirty() {
     const saveTier = getBonusTier(savedLevel);
     if (newTier !== saveTier) {
       const up = newTier > saveTier;
-      hint.textContent = up
-        ? `⬆ ${tierLabel(newTier)}`
-        : `⬇ ${tierLabel(newTier)}`;
+      hint.textContent = up ? `⬆ ${tierLabel(newTier)}` : `⬇ ${tierLabel(newTier)}`;
       hint.style.color   = up ? 'var(--success)' : 'var(--rust)';
       hint.style.display = 'block';
     } else {
@@ -871,22 +1141,36 @@ function markDirty() {
   }
 }
 
-function commitSave() {
+async function commitSave() {
   savedLevel = currentLevel;
   save();
+
   const btn  = document.getElementById('saveBtn');
   const hint = document.getElementById('levelChangeHint');
   if (hint) hint.style.display = 'none';
   if (!btn) return;
-  btn.className = 'save-btn saved';
-  btn.textContent = '✓ Aktualisiert';
+
+  // Push to GitHub if PAT configured
+  const pat = getPat();
+  if (pat) {
+    btn.textContent = '↑ GitHub…';
+    btn.className   = 'save-btn saved';
+    const ok = await saveToGitHub();
+    btn.textContent = ok ? '✓ Gespeichert' : '✓ Lokal gespeichert';
+  } else {
+    btn.className   = 'save-btn saved';
+    btn.textContent = '✓ Aktualisiert';
+  }
+
   setTimeout(() => {
-    btn.className = 'save-btn';
+    btn.className   = 'save-btn';
     btn.textContent = 'Update';
-  }, 2000);
+  }, 2500);
 }
 
-// ── Storage (robust, iframe-sicher) ───────
+// ══════════════════════════════════════════════════════════════
+// LOCALSTORAGE
+// ══════════════════════════════════════════════════════════════
 const STORE_KEY = 'vhp_v3';
 
 function save() {
@@ -906,7 +1190,7 @@ function save() {
     });
     localStorage.setItem(STORE_KEY, JSON.stringify(d));
     showLastSaved(now);
-  } catch(e) { /* localStorage blocked in some iframes – fine */ }
+  } catch(e) { /* blocked in some iframes */ }
 }
 
 function showLastSaved(date) {
@@ -926,39 +1210,453 @@ function load() {
     if (d.q) sv('quartalSelect', d.q);
     if (d.j) sv('jahrSelect', d.j);
     if (d.t) sv('totalCases', d.t);
-    Object.entries(d.vals  || {}).forEach(([k,v]) => { const el = document.getElementById('in-'+k); if(el) el.value = v; });
-    Object.entries(d.checks|| {}).forEach(([k,v]) => { if(v) setCheck(k, true); });
+    Object.entries(d.vals   || {}).forEach(([k,v]) => { const el = document.getElementById('in-'+k); if(el) el.value = v; });
+    Object.entries(d.checks || {}).forEach(([k,v]) => { if(v) setCheck(k, true); });
     if (d.savedAt) showLastSaved(new Date(d.savedAt));
   } catch(e) {}
 }
 
-function qs(id) { return (document.getElementById(id)||{}).value || ''; }
+function qs(id) { return (document.getElementById(id) || {}).value || ''; }
 function sv(id, v) { const el = document.getElementById(id); if(el) el.value = v; }
 
-// ── Schwellenwert (Q4-Sonderregel Impf) ───
+// ══════════════════════════════════════════════════════════════
+// GITHUB PAT
+// ══════════════════════════════════════════════════════════════
+function getPat() {
+  try { return localStorage.getItem('vhp_pat') || ''; } catch(e) { return ''; }
+}
+
+function openPatModal() {
+  const pat = getPat();
+  const inp = document.getElementById('patInput');
+  if (inp) inp.value = pat ? '••••••••••••' : '';
+  document.getElementById('patStatus').textContent = '';
+  document.getElementById('patModal').classList.add('open');
+}
+
+function closePatModal() {
+  document.getElementById('patModal').classList.remove('open');
+}
+
+async function doSavePat() {
+  const inp = document.getElementById('patInput');
+  const val = inp.value.trim();
+  if (!val || val.startsWith('•')) {
+    // No change
+    closePatModal();
+    return;
+  }
+  const statusEl = document.getElementById('patStatus');
+  statusEl.textContent = 'Verbinde …';
+  statusEl.className   = 'modal-status';
+
+  try {
+    const r = await fetch(GH_API, {
+      headers: {
+        'Authorization': `Bearer ${val}`,
+        'Accept': 'application/vnd.github+json'
+      }
+    });
+    if (r.status === 404) {
+      // File doesn't exist yet — that's OK, repo access works
+      try { localStorage.setItem('vhp_pat', val); } catch(e) {}
+      statusEl.textContent = '✓ Verbunden (data.json wird beim ersten Update angelegt)';
+      statusEl.className   = 'modal-status status-ok';
+      updateGhBtn(true);
+      ghData = { quarters: {} };
+      setTimeout(closePatModal, 1800);
+      return;
+    }
+    if (!r.ok) {
+      statusEl.textContent = `Fehler: HTTP ${r.status} – PAT ungültig oder kein Repo-Zugriff.`;
+      statusEl.className   = 'modal-status status-err';
+      return;
+    }
+    try { localStorage.setItem('vhp_pat', val); } catch(e) {}
+    statusEl.textContent = '✓ Verbunden – lade historische Daten …';
+    statusEl.className   = 'modal-status status-ok';
+    updateGhBtn(true);
+    setTimeout(closePatModal, 1200);
+    await loadFromGitHub(val);
+  } catch(e) {
+    statusEl.textContent = `Netzwerkfehler: ${e.message}`;
+    statusEl.className   = 'modal-status status-err';
+  }
+}
+
+function doClearPat() {
+  try { localStorage.removeItem('vhp_pat'); } catch(e) {}
+  ghSha  = null;
+  ghData = { quarters: {} };
+  updateGhBtn(false);
+  renderHistory();
+  closePatModal();
+}
+
+function updateGhBtn(connected) {
+  const btn = document.getElementById('ghBtn');
+  if (!btn) return;
+  btn.className = connected ? 'gh-config-btn connected' : 'gh-config-btn';
+  btn.textContent = connected ? '✓ GitHub' : '⚙ GitHub';
+}
+
+// ══════════════════════════════════════════════════════════════
+// GITHUB READ / WRITE
+// ══════════════════════════════════════════════════════════════
+function b64encode(str) {
+  return btoa(unescape(encodeURIComponent(str)));
+}
+function b64decode(str) {
+  return decodeURIComponent(escape(atob(str.replace(/\n/g,''))));
+}
+
+async function loadFromGitHub(pat) {
+  pat = pat || getPat();
+  if (!pat) return;
+  try {
+    const r = await fetch(GH_API, {
+      headers: {
+        'Authorization': `Bearer ${pat}`,
+        'Accept': 'application/vnd.github+json'
+      }
+    });
+    if (r.status === 404) {
+      ghData = { quarters: {} };
+      ghSha  = null;
+      renderHistory();
+      renderProjection();
+      return;
+    }
+    if (!r.ok) return;
+    const resp = await r.json();
+    ghSha  = resp.sha;
+    ghData = JSON.parse(b64decode(resp.content));
+    renderHistory();
+    renderProjection();
+  } catch(e) {
+    console.warn('GitHub load failed:', e);
+  }
+}
+
+async function saveToGitHub() {
+  const pat = getPat();
+  if (!pat) return false;
+
+  const q    = qs('quartalSelect');
+  const year = qs('jahrSelect');
+  const key  = `${year}-${q}`;
+  const { total, elapsed } = quarterProgress(q, year);
+
+  // Build quarter snapshot
+  const vals = {};
+  [...KPI_KEYS, ...CRIT_KEYS].forEach(k => {
+    vals[k] = parseInt((document.getElementById('in-'+k)||{}).value) || 0;
+  });
+  const checks = {};
+  CHK_KEYS.forEach(k => {
+    checks[k] = document.getElementById('card-'+k).classList.contains('checked');
+  });
+
+  const snapshot = {
+    quartal:    q,
+    jahr:       year,
+    totalCases: parseInt(qs('totalCases')) || 0,
+    values:     vals,
+    checks:     checks,
+    savedAt:    new Date().toISOString(),
+    metCount:   currentLevel,
+    tier:       getBonusTier(currentLevel),
+    dayOfQuarter: elapsed,
+    totalDays:    total
+  };
+
+  ghData.quarters = ghData.quarters || {};
+  ghData.quarters[key] = snapshot;
+
+  const content = b64encode(JSON.stringify(ghData, null, 2));
+  const body    = { message: `Update ${key}`, content };
+  if (ghSha) body.sha = ghSha;
+
+  try {
+    const r = await fetch(GH_API, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${pat}`,
+        'Accept': 'application/vnd.github+json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(body)
+    });
+    if (!r.ok) {
+      const err = await r.json().catch(() => ({}));
+      console.warn('GitHub write failed:', r.status, err.message);
+      return false;
+    }
+    const resp = await r.json();
+    ghSha = resp.content.sha;
+    renderHistory();
+    return true;
+  } catch(e) {
+    console.warn('GitHub write error:', e);
+    return false;
+  }
+}
+
+// ══════════════════════════════════════════════════════════════
+// HISTORIETABELLE (C)
+// ══════════════════════════════════════════════════════════════
+function renderHistory() {
+  const quarters = ghData.quarters || {};
+  const keys     = Object.keys(quarters).sort().reverse();
+
+  const sec  = document.getElementById('histSection');
+  const lbl  = document.getElementById('histLabel');
+  const body = document.getElementById('histBody');
+
+  if (!keys.length) {
+    sec.style.display = 'none';
+    lbl.style.display = 'none';
+    return;
+  }
+
+  sec.style.display = 'block';
+  lbl.style.display = 'flex';
+
+  body.innerHTML = keys.map(k => {
+    const q = quarters[k];
+    const tier = q.tier || getBonusTier(q.metCount || 0);
+    const pts  = tier === 3 ? '158 Pkt.' : tier === 2 ? '138 Pkt.' : '128 Pkt.';
+    const tierCls  = tier === 3 ? 'tier-ii' : tier === 2 ? 'tier-i' : 'tier-0';
+    const tierText = tier === 3 ? 'Zuschlag II' : tier === 2 ? 'Zuschlag I' : 'Kein Zuschlag';
+    const savedAt  = q.savedAt ? new Date(q.savedAt).toLocaleDateString('de-DE') : '–';
+    const fälle    = q.totalCases ? q.totalCases.toLocaleString('de-DE') : '–';
+
+    return `<tr>
+      <td><strong>${q.quartal} ${q.jahr}</strong></td>
+      <td>${fälle}</td>
+      <td>${q.metCount !== undefined ? q.metCount : '–'} / 10</td>
+      <td><span class="tier-badge ${tierCls}">${tierText}</span></td>
+      <td>${pts}</td>
+      <td>${savedAt}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ══════════════════════════════════════════════════════════════
+// HOCHRECHNUNG (D)
+// ══════════════════════════════════════════════════════════════
+function renderProjection() {
+  const q    = qs('quartalSelect');
+  const year = qs('jahrSelect');
+  const { total, elapsed, isActive } = quarterProgress(q, year);
+  const totalCases = parseInt(qs('totalCases')) || 0;
+  const secEl  = document.getElementById('projSection');
+  const lblEl  = document.getElementById('projLabel');
+
+  // Only show projection for active quarters with data
+  if (!isActive || elapsed < 3 || totalCases < 1) {
+    secEl.style.display = 'none';
+    lblEl.style.display = 'none';
+    return;
+  }
+
+  const factor    = total / elapsed;
+  const projTotal = Math.round(totalCases * factor);
+
+  // Compute seasonal factor from past complete quarters (if available)
+  // A quarter is "complete" if dayOfQuarter === totalDays or dayOfQuarter >= totalDays - 3
+  const qKey   = `${year}-${q}`;
+  const sameQs = Object.entries(ghData.quarters || {}).filter(([k, v]) =>
+    k !== qKey && v.quartal === q && v.dayOfQuarter && v.totalDays &&
+    v.dayOfQuarter >= v.totalDays - 3
+  );
+  const hasSeasonalData = sameQs.length >= 1;
+
+  const results = [...KPI_KEYS, ...CRIT_KEYS].map(k => {
+    const count  = parseInt((document.getElementById('in-'+k)||{}).value) || 0;
+    const thr    = getThreshold(k);
+    const curPct = totalCases > 0 ? count / totalCases * 100 : 0;
+
+    let projPct = totalCases > 0 ? (count * factor) / projTotal * 100 : 0;
+
+    // Apply seasonal adjustment if available
+    let seasonalFactor = 1;
+    if (hasSeasonalData) {
+      const ratios = sameQs.map(([_, v]) => {
+        const finalVal   = (v.values || {})[k] || 0;
+        const finalTotal = v.totalCases || 1;
+        const finalPct   = finalVal / finalTotal * 100;
+        // What would linear projection at this same elapsed% have predicted?
+        const dayRatio   = elapsed / total;
+        const midVal     = finalVal * dayRatio;
+        const midTotal   = finalTotal * dayRatio;
+        const linearPct  = midTotal > 0 ? midVal / midTotal * 100 : finalPct;
+        return linearPct > 0 ? finalPct / linearPct : 1;
+      }).filter(r => r > 0 && r < 5);
+      if (ratios.length) {
+        seasonalFactor = ratios.reduce((a,b) => a+b, 0) / ratios.length;
+        projPct = projPct * seasonalFactor;
+      }
+    }
+
+    return {
+      k,
+      label: CRITERIA[k].label,
+      curPct,
+      projPct,
+      thr,
+      willMeet: projPct >= thr,
+      curMet:   curPct >= thr && totalCases > 0,
+      seasonal: hasSeasonalData ? seasonalFactor : null
+    };
+  });
+
+  const chkMet = CHK_KEYS.filter(k => document.getElementById('card-'+k).classList.contains('checked')).length;
+  const projMet = results.filter(r => r.willMeet).length + chkMet;
+  const projTier = getBonusTier(projMet);
+  const projTierCls  = projTier === 3 ? 'tier-ii' : projTier === 2 ? 'tier-i' : 'tier-0';
+  const projTierText = projTier === 3 ? 'Zuschlag II' : projTier === 2 ? 'Zuschlag I' : 'Kein Zuschlag';
+
+  secEl.style.display = 'grid';
+  lblEl.style.display = 'flex';
+
+  const daysLeft = total - elapsed;
+  const seasonNote = hasSeasonalData
+    ? `<span class="proj-seasonal-badge">✦ Saisonaler Faktor eingerechnet (${sameQs.length} Vorjahresquartal${sameQs.length>1?'e':''})</span>`
+    : `<span class="proj-seasonal-badge">Linearer Extrapolation – Saisonfaktor ab 1 Vergleichsquartal</span>`;
+
+  secEl.innerHTML = `
+    <div class="proj-summary-card">
+      <div>
+        <div class="proj-summary-number">${projMet}<span style="font-size:1rem;font-weight:400;color:var(--warm-muted)"> / 10</span></div>
+        <div class="proj-summary-label">Hochgerechnete Kriterien<br>bei Quartalsmitte (Tag ${elapsed} / ${total})</div>
+      </div>
+      <div>
+        <div class="proj-summary-label">Hochgerechnete Fälle</div>
+        <div style="font-size:1.2rem;font-weight:700;color:var(--primary-dark)">${projTotal.toLocaleString('de-DE')}</div>
+        <div style="font-size:0.68rem;color:var(--warm-muted)">noch ${daysLeft} Tage verbleibend</div>
+      </div>
+      <div>
+        <span class="tier-badge ${projTierCls} proj-summary-tier">${projTierText}</span>
+        ${seasonNote}
+      </div>
+    </div>
+    ${results.map(r => `
+      <div class="proj-card ${r.willMeet ? 'will-meet' : 'wont-meet'}">
+        <div class="proj-name">${r.label}</div>
+        <div class="proj-pct">${r.projPct.toFixed(1).replace('.',',')} %
+          <span style="font-size:0.7rem;font-weight:400;color:var(--warm-muted)"> (Ziel ${r.thr} %)</span>
+        </div>
+        <div class="proj-values">Aktuell: ${r.curPct.toFixed(1).replace('.',',')} %
+          ${r.seasonal && Math.abs(r.seasonal-1) > 0.05 ? ` · Saisonfaktor ×${r.seasonal.toFixed(2)}` : ''}
+        </div>
+      </div>
+    `).join('')}
+  `;
+}
+
+// ══════════════════════════════════════════════════════════════
+// WAS FEHLT (E) – indirekte Sprache
+// ══════════════════════════════════════════════════════════════
+function renderWhatsMissing() {
+  const el    = document.getElementById('whatsMissing');
+  const total = parseInt(qs('totalCases')) || 0;
+  const met   = currentLevel;
+
+  if (!total) {
+    el.className  = 'whats-missing-card';
+    el.innerHTML  = '<p class="wm-placeholder">Behandlungsfälle und Kriterien eintragen für eine Analyse.</p>';
+    return;
+  }
+
+  // Collect unmet criteria
+  const unmet = [];
+  [...KPI_KEYS, ...CRIT_KEYS].forEach(k => {
+    const count = parseInt((document.getElementById('in-'+k)||{}).value) || 0;
+    const pct   = total > 0 ? count / total * 100 : 0;
+    const thr   = getThreshold(k);
+    if (pct < thr) {
+      const needed = Math.ceil(thr / 100 * total) - count;
+      const close  = pct >= thr * 0.75;
+      unmet.push({ k, label: CRITERIA[k].label, needed, close, thr });
+    }
+  });
+  CHK_KEYS.forEach(k => {
+    if (!document.getElementById('card-'+k).classList.contains('checked'))
+      unmet.push({ k, label: CHK_LABELS[k], needed: null, close: false, thr: null });
+  });
+
+  let html = '';
+
+  if (met >= 8) {
+    el.className = 'whats-missing-card achieved';
+    html = `<div class="wm-line">✓ <strong>Zuschlag II ist erreicht</strong> (${met} von 10 Kriterien erfüllt). GOP 03040 + 03042, 158 Punkte.</div>`;
+    if (unmet.length) {
+      html += `<div class="wm-line" style="margin-top:6px;font-size:0.78rem;color:var(--warm-muted)">Noch ausbaufähig:</div>`;
+      html += `<div class="wm-missing-chips">${unmet.map(u =>
+        `<span class="wm-chip close">${u.label}${u.needed ? ` (+${u.needed})` : ''}</span>`
+      ).join('')}</div>`;
+    }
+  } else if (met >= 2) {
+    el.className = 'whats-missing-card';
+    const toII = 8 - met;
+    html = `<div class="wm-line">Für <strong>Zuschlag II</strong> werden noch <strong>${toII} Kriterium${toII !== 1 ? 'en' : ''}</strong> benötigt.</div>`;
+    const unmetNum = unmet.filter(u => u.thr !== null);
+    const unmetChk = unmet.filter(u => u.thr === null);
+    if (unmetNum.length) {
+      html += `<div class="wm-line" style="margin-top:8px;font-size:0.75rem;color:var(--warm-muted)">Nicht erfüllt (numerisch):</div>`;
+      html += `<div class="wm-missing-chips">${unmetNum.map(u =>
+        `<span class="wm-chip ${u.close?'close':''}">${u.label} <span style="font-weight:400;opacity:0.8">noch +${u.needed} Leis­tung${u.needed !== 1 ? 'en' : ''}</span></span>`
+      ).join('')}</div>`;
+    }
+    if (unmetChk.length) {
+      html += `<div class="wm-missing-chips" style="margin-top:4px">${unmetChk.map(u =>
+        `<span class="wm-chip">${u.label}</span>`
+      ).join('')}</div>`;
+    }
+  } else {
+    el.className = 'whats-missing-card';
+    const toI  = 2 - met;
+    const toII = 8 - met;
+    html = `<div class="wm-line">Für <strong>Zuschlag I</strong> werden noch <strong>${toI} Kriterium${toI !== 1 ? 'en' : ''}</strong> benötigt, für <strong>Zuschlag II</strong> noch <strong>${toII}</strong>.</div>`;
+    if (unmet.length) {
+      html += `<div class="wm-missing-chips" style="margin-top:8px">${unmet.map(u =>
+        `<span class="wm-chip ${u.close?'close':''}">${u.label}</span>`
+      ).join('')}</div>`;
+    }
+  }
+
+  el.innerHTML = html;
+}
+
+// ══════════════════════════════════════════════════════════════
+// SCHWELLENWERT
+// ══════════════════════════════════════════════════════════════
 function getThreshold(key) {
   if (key === 'impf') return qs('quartalSelect') === 'Q4' ? 25 : 7;
   return CRITERIA[key].threshold;
 }
 
-// ── Formatierung ──────────────────────────
+// ══════════════════════════════════════════════════════════════
+// FORMAT
+// ══════════════════════════════════════════════════════════════
 function fmtPct(v) {
   return v.toLocaleString('de-DE', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + ' %';
 }
 
-// ── KPI-Karte berechnen ───────────────────
+// ══════════════════════════════════════════════════════════════
+// KPI-KARTE BERECHNEN
+// ══════════════════════════════════════════════════════════════
 function calcKpi(key) {
-  const total = parseInt(qs('totalCases')) || 0;
-  const count = parseInt((document.getElementById('in-'+key)||{}).value) || 0;
-  const thr   = getThreshold(key);
+  const total   = parseInt(qs('totalCases')) || 0;
+  const count   = parseInt((document.getElementById('in-'+key)||{}).value) || 0;
+  const thr     = getThreshold(key);
   const hasData = total > 0;
-  const pct   = hasData ? (count / total) * 100 : 0;
-  const met   = hasData && pct >= thr;
+  const pct     = hasData ? (count / total) * 100 : 0;
+  const met     = hasData && pct >= thr;
 
-  // Prozentzahl
   document.getElementById('pct-' + key).textContent = hasData ? fmtPct(pct) : '–';
 
-  // Progress bar: Skala 0 → 2×Ziel (damit Ziel bei 50% der Bar liegt)
   const scale   = thr * 2;
   const fillPct = hasData ? Math.min((pct / scale) * 100, 100) : 0;
   const mrkLeft = Math.min((thr / scale) * 100, 100);
@@ -969,26 +1667,25 @@ function calcKpi(key) {
 
   document.getElementById('marker-' + key).style.left = mrkLeft + '%';
 
-  // Badge
   const badge = document.getElementById('badge-' + key);
   if (!hasData) { badge.textContent = '– –'; badge.className = 'kpi-badge badge-neutral'; }
   else if (met) { badge.textContent = '✓ Erfüllt'; badge.className = 'kpi-badge badge-met'; }
   else          { badge.textContent = '✗ Offen';   badge.className = 'kpi-badge badge-unmet'; }
 
-  // Card-State
   const card = document.getElementById('card-' + key);
   card.className = 'kpi-card' + (hasData ? (met ? ' state-met' : ' state-unmet') : '');
 
-  // Hinweis
   const hintEl = document.getElementById('hint-' + key);
   if (hintEl) {
-    if (!hasData) { hintEl.textContent = 'Behandlungsfälle oben eintragen.'; hintEl.className = 'prog-hint'; }
-    else if (met) {
-      hintEl.innerHTML = `<span class="hint-ok">✓ Ziel erreicht</span> (mind. ${Math.ceil(thr/100*total)} bei ${total} Fällen)`;
+    if (!hasData) {
+      hintEl.textContent = 'Behandlungsfälle oben eintragen.';
+      hintEl.className   = 'prog-hint';
+    } else if (met) {
+      hintEl.innerHTML = `<span style="color:var(--success);font-weight:600">✓ Ziel erreicht</span> (mind. ${Math.ceil(thr/100*total)} bei ${total} Fällen)`;
       hintEl.className = 'prog-hint';
     } else {
       const needed = Math.ceil(thr / 100 * total);
-      hintEl.innerHTML = `<span class="hint-err">Noch ${needed - count} Leistung(en) nötig</span> (mind. ${needed} bei ${total} Fällen)`;
+      hintEl.innerHTML = `<span style="color:var(--rust)">Noch ${needed - count} Leistung(en) nötig</span> (mind. ${needed} bei ${total} Fällen)`;
       hintEl.className = 'prog-hint';
     }
   }
@@ -996,14 +1693,16 @@ function calcKpi(key) {
   return met && hasData;
 }
 
-// ── Sekundäres Kriterium berechnen ────────
+// ══════════════════════════════════════════════════════════════
+// SEKUNDÄRES KRITERIUM BERECHNEN
+// ══════════════════════════════════════════════════════════════
 function calcCrit(key) {
-  const total = parseInt(qs('totalCases')) || 0;
-  const count = parseInt((document.getElementById('in-'+key)||{}).value) || 0;
-  const thr   = getThreshold(key);
+  const total   = parseInt(qs('totalCases')) || 0;
+  const count   = parseInt((document.getElementById('in-'+key)||{}).value) || 0;
+  const thr     = getThreshold(key);
   const hasData = total > 0;
-  const pct   = hasData ? (count / total) * 100 : 0;
-  const met   = hasData && pct >= thr;
+  const pct     = hasData ? (count / total) * 100 : 0;
+  const met     = hasData && pct >= thr;
 
   document.getElementById('pct-' + key).textContent = hasData ? fmtPct(pct) : '–';
 
@@ -1025,14 +1724,13 @@ function calcCrit(key) {
   const card = document.getElementById('card-' + key);
   if (card) card.className = 'crit-card' + (hasData ? (met ? ' state-met' : ' state-unmet') : '');
 
-  // Sonderlogik Impfungen
   if (key === 'impf') {
     const q = qs('quartalSelect');
     document.getElementById('ziel-impf').textContent = q === 'Q4' ? 'Ziel ≥ 25 % (Q4)' : 'Ziel ≥ 7 % (Q1–Q3)';
     const warnEl = document.getElementById('impf-warning');
     if (warnEl) {
-      const rawCount = parseInt((document.getElementById('in-impf')||{}).value) || 0;
-      warnEl.textContent = (rawCount > 0 && rawCount < 10)
+      const raw = parseInt((document.getElementById('in-impf')||{}).value) || 0;
+      warnEl.textContent = (raw > 0 && raw < 10)
         ? '⚠ Unter 10 Impfungen → 40 % Abschlag auf GOP 03040!' : '';
     }
   }
@@ -1040,7 +1738,9 @@ function calcCrit(key) {
   return met && hasData;
 }
 
-// ── Checkbox ──────────────────────────────
+// ══════════════════════════════════════════════════════════════
+// CHECKBOX
+// ══════════════════════════════════════════════════════════════
 function toggleCheck(key) {
   const isChecked = document.getElementById('card-'+key).classList.contains('checked');
   setCheck(key, !isChecked);
@@ -1050,11 +1750,13 @@ function toggleCheck(key) {
 function setCheck(key, val) {
   const card = document.getElementById('card-'+key);
   const box  = document.getElementById('chk-'+key);
-  if (val) { card.classList.remove('unchecked'); card.classList.add('checked'); box.textContent = '✓'; }
-  else     { card.classList.remove('checked'); card.classList.add('unchecked'); box.textContent = ''; }
+  if (val) { card.classList.remove('unchecked'); card.classList.add('checked');   box.textContent = '✓'; }
+  else     { card.classList.remove('checked');   card.classList.add('unchecked'); box.textContent = ''; }
 }
 
-// ── Zusammenfassung ───────────────────────
+// ══════════════════════════════════════════════════════════════
+// ZUSAMMENFASSUNG
+// ══════════════════════════════════════════════════════════════
 function updateSummary() {
   const total = parseInt(qs('totalCases')) || 0;
   let met = 0;
@@ -1082,30 +1784,49 @@ function updateSummary() {
                         met >= 2 ? 'Zuschlag I erreicht' : 'Kein Zuschlag';
 
   document.getElementById('summaryPills').innerHTML = `
-    <span class="${pillClass}">
-      <span class="pill-dot"></span>
-      ${met} / 10 Kriterien erfüllt
-    </span>
-    <span class="${pillClass}">
-      <span class="pill-dot"></span>
-      ${zuschlagLabel}
-    </span>`;
+    <span class="${pillClass}"><span class="pill-dot"></span>${met} / 10 Kriterien erfüllt</span>
+    <span class="${pillClass}"><span class="pill-dot"></span>${zuschlagLabel}</span>`;
+
+  renderWhatsMissing();
+  renderProjection();
 }
 
-// ── Alles neu berechnen ───────────────────
+// ══════════════════════════════════════════════════════════════
+// ALLES NEU BERECHNEN
+// ══════════════════════════════════════════════════════════════
 function calcAll() {
   KPI_KEYS.forEach(k  => calcKpi(k));
   CRIT_KEYS.forEach(k => calcCrit(k));
   updateSummary();
+  updateQuarterBar();
 }
 
-// ── Init ──────────────────────────────────
+function onQuarterChange() {
+  calcAll();
+  markDirty();
+}
+
+// ══════════════════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════════════════
 window.addEventListener('DOMContentLoaded', () => {
+  // Set current quarter by default
+  const now = new Date();
+  const curQ = ['Q1','Q1','Q1','Q2','Q2','Q2','Q3','Q3','Q3','Q4','Q4','Q4'][now.getMonth()];
+  sv('quartalSelect', curQ);
+  sv('jahrSelect', String(now.getFullYear()));
+
   load();
   calcAll();
-  savedLevel = currentLevel; // gespeicherter Stand nach dem Laden setzen
+  savedLevel = currentLevel;
+
+  // GitHub
+  const pat = getPat();
+  if (pat) {
+    updateGhBtn(true);
+    loadFromGitHub(pat);
+  }
 });
 </script>
-
 </body>
 </html>
