@@ -667,6 +667,43 @@
     .footer-note { font-size: 0.65rem; color: var(--warm-muted); line-height: 1.6; }
     .footer-note a { color: var(--primary); text-decoration: none; }
 
+    /* ══ READONLY-MODUS ══════════════════════════════════════ */
+    body.readonly .save-btn,
+    body.readonly .gh-config-btn,
+    body.readonly #levelChangeHint,
+    body.readonly .modal-overlay,
+    body.readonly #whatsMissing { display: none !important; }
+
+    body.readonly .ctrl-group select,
+    body.readonly .ctrl-group input[type="number"] {
+      pointer-events: none;
+      background: transparent;
+      border-color: transparent;
+      color: rgba(255,255,255,0.9);
+    }
+    body.readonly .input-block input[type="number"],
+    body.readonly .crit-input-row input[type="number"] {
+      pointer-events: none;
+      background: transparent;
+      border-color: var(--warm-border);
+      color: var(--text);
+    }
+    body.readonly .check-card { pointer-events: none; cursor: default; }
+
+    .readonly-badge {
+      display: none;
+      font-size: 0.65rem;
+      background: rgba(255,255,255,0.18);
+      border: 1px solid rgba(255,255,255,0.3);
+      color: rgba(255,255,255,0.85);
+      border-radius: 6px;
+      padding: 3px 10px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      align-self: flex-end;
+    }
+    body.readonly .readonly-badge { display: inline-block; }
+
     /* ══ RESPONSIVE ══════════════════════════════════════════ */
     @media (max-width: 600px) {
       header { padding: 16px 18px; }
@@ -735,6 +772,7 @@
                oninput="calcAll(); markDirty()">
       </div>
       <button class="gh-config-btn" id="ghBtn" onclick="openPatModal()">⚙ GitHub</button>
+      <span class="readonly-badge">📖 Nur-Lese-Ansicht</span>
     </div>
   </div>
 </header>
@@ -1029,6 +1067,12 @@
 
 <!-- ═══════════ JAVASCRIPT ══════════ -->
 <script>
+// ══════════════════════════════════════════════════════════════
+// READONLY-MODUS  (?readonly in URL → Notion-Ansicht)
+// ══════════════════════════════════════════════════════════════
+const IS_READONLY = new URLSearchParams(window.location.search).has('readonly');
+if (IS_READONLY) document.body.classList.add('readonly');
+
 // ══════════════════════════════════════════════════════════════
 // KONFIGURATION
 // ══════════════════════════════════════════════════════════════
@@ -1807,24 +1851,58 @@ function onQuarterChange() {
 }
 
 // ══════════════════════════════════════════════════════════════
+// READONLY: öffentliches Laden ohne PAT
+// ══════════════════════════════════════════════════════════════
+const GH_RAW = `https://raw.githubusercontent.com/${GH_OWNER}/${GH_REPO}/main/${GH_FILE}`;
+
+async function loadReadonly() {
+  try {
+    // Cache-busting damit Notion nicht veraltete Daten zeigt
+    const r = await fetch(GH_RAW + '?t=' + Date.now());
+    if (!r.ok) return;
+    ghData = await r.json();
+    // Aktuelles Quartal aus GitHub laden, falls vorhanden
+    const q    = qs('quartalSelect');
+    const year = qs('jahrSelect');
+    const key  = `${year}-${q}`;
+    const snap = (ghData.quarters || {})[key];
+    if (snap) {
+      if (snap.totalCases) sv('totalCases', snap.totalCases);
+      Object.entries(snap.values  || {}).forEach(([k,v]) => { const el = document.getElementById('in-'+k); if(el) el.value = v; });
+      Object.entries(snap.checks  || {}).forEach(([k,v]) => { if(v) setCheck(k, true); else setCheck(k, false); });
+    }
+    calcAll();
+    savedLevel = currentLevel;
+    renderHistory();
+    renderProjection();
+  } catch(e) {
+    console.warn('Readonly load failed:', e);
+  }
+}
+
+// ══════════════════════════════════════════════════════════════
 // INIT
 // ══════════════════════════════════════════════════════════════
 window.addEventListener('DOMContentLoaded', () => {
-  // Set current quarter by default
+  // Aktuelles Quartal vorbelegen
   const now = new Date();
   const curQ = ['Q1','Q1','Q1','Q2','Q2','Q2','Q3','Q3','Q3','Q4','Q4','Q4'][now.getMonth()];
   sv('quartalSelect', curQ);
   sv('jahrSelect', String(now.getFullYear()));
 
-  load();
-  calcAll();
-  savedLevel = currentLevel;
-
-  // GitHub
-  const pat = getPat();
-  if (pat) {
-    updateGhBtn(true);
-    loadFromGitHub(pat);
+  if (IS_READONLY) {
+    // Readonly-Modus: Daten von öffentlichem GitHub Raw-URL laden
+    loadReadonly();
+  } else {
+    // Normaler Modus: localStorage + GitHub (mit PAT)
+    load();
+    calcAll();
+    savedLevel = currentLevel;
+    const pat = getPat();
+    if (pat) {
+      updateGhBtn(true);
+      loadFromGitHub(pat);
+    }
   }
 });
 </script>
