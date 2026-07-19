@@ -652,6 +652,13 @@
     .tier-i   { background: var(--amber-pale);   color: var(--amber); }
     .tier-0   { background: var(--rust-pale);    color: var(--rust); }
     .hist-empty { padding: 16px; text-align: center; color: var(--warm-muted); font-size: 0.8rem; }
+    .del-quarter-btn {
+      background: none; border: none; cursor: pointer;
+      color: var(--warm-muted); font-size: 0.75rem; padding: 2px 5px;
+      border-radius: 4px; opacity: 0.5; transition: opacity .2s, color .2s;
+    }
+    .del-quarter-btn:hover { opacity: 1; color: var(--rust); }
+    .readonly .del-quarter-btn { display: none; }
 
     /* ══ FOOTER ══════════════════════════════════════════════ */
     .footer {
@@ -689,6 +696,46 @@
       color: var(--text);
     }
     body.readonly .check-card { pointer-events: none; cursor: default; }
+
+    /* ══ IMPORT ══════════════════════════════════════════════ */
+    .import-btn {
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.3);
+      color: #fff;
+      border-radius: 7px;
+      padding: 6px 13px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      align-self: flex-end;
+      transition: background 0.15s;
+    }
+    .import-btn:hover { background: rgba(255,255,255,0.25); }
+    body.readonly .import-btn { display: none; }
+
+    .import-toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--primary-dark);
+      color: #fff;
+      padding: 12px 22px;
+      border-radius: 10px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.22);
+      z-index: 998;
+      opacity: 0;
+      transition: opacity 0.3s;
+      pointer-events: none;
+      max-width: 480px;
+      text-align: center;
+      line-height: 1.5;
+    }
+    .import-toast.show { opacity: 1; }
+    .import-toast.error { background: var(--rust); }
 
     .readonly-badge {
       display: none;
@@ -771,6 +818,8 @@
         <input type="number" id="totalCases" min="0" placeholder="z.B. 1000"
                oninput="calcAll(); markDirty()">
       </div>
+      <button class="import-btn" onclick="document.getElementById('fghFileInput').click()">📂 FGH importieren</button>
+      <input type="file" id="fghFileInput" accept=".txt,.csv" style="display:none" onchange="handleFGHImport(this)">
       <button class="gh-config-btn" id="ghBtn" onclick="openPatModal()">⚙ GitHub</button>
       <span class="readonly-badge">📖 Nur-Lese-Ansicht</span>
     </div>
@@ -1064,6 +1113,9 @@
   </div>
 
 </main>
+
+<!-- Import Toast -->
+<div class="import-toast" id="importToast"></div>
 
 <!-- ═══════════ JAVASCRIPT ══════════ -->
 <script>
@@ -1417,8 +1469,16 @@ async function saveToGitHub() {
   ghData.quarters = ghData.quarters || {};
   ghData.quarters[key] = snapshot;
 
+  return pushGhData(`Update ${key}`);
+}
+
+// Roher GitHub-PUT für ghData (wird auch vom Löschen genutzt)
+async function pushGhData(message = 'Update data.json') {
+  const pat = getPat();
+  if (!pat) return false;
+
   const content = b64encode(JSON.stringify(ghData, null, 2));
-  const body    = { message: `Update ${key}`, content };
+  const body    = { message, content };
   if (ghSha) body.sha = ghSha;
 
   try {
@@ -1475,6 +1535,8 @@ function renderHistory() {
     const savedAt  = q.savedAt ? new Date(q.savedAt).toLocaleDateString('de-DE') : '–';
     const fälle    = q.totalCases ? q.totalCases.toLocaleString('de-DE') : '–';
 
+    const delBtn = IS_READONLY ? '' :
+      `<button class="del-quarter-btn" onclick="deleteQuarter('${k}')" title="Quartal löschen">✕</button>`;
     return `<tr>
       <td><strong>${q.quartal} ${q.jahr}</strong></td>
       <td>${fälle}</td>
@@ -1482,8 +1544,22 @@ function renderHistory() {
       <td><span class="tier-badge ${tierCls}">${tierText}</span></td>
       <td>${pts}</td>
       <td>${savedAt}</td>
+      <td>${delBtn}</td>
     </tr>`;
   }).join('');
+}
+
+async function deleteQuarter(key) {
+  const label = key.replace('-', ' ');
+  if (!confirm(`${label} wirklich löschen?`)) return;
+  delete ghData.quarters[key];
+  renderHistory();
+  const ok = await pushGhData(`Delete ${key}`);
+  if (ok) {
+    showToast(`${label} gelöscht.`, false, 3000);
+  } else {
+    showToast('Löschen fehlgeschlagen – PAT vorhanden?', true, 5000);
+  }
 }
 
 // ══════════════════════════════════════════════════════════════
@@ -1848,6 +1924,139 @@ function calcAll() {
 function onQuarterChange() {
   calcAll();
   markDirty();
+}
+
+// ══════════════════════════════════════════════════════════════
+// FGH-IMPORT: Fachgruppenhäufigkeit-Datei parsen
+// ══════════════════════════════════════════════════════════════
+
+// GOP-Zuordnung pro Kriterium
+const GOP_MAP = {
+  besuche:   ['01410','01411','01412','01413','01415','01721',
+               '03062','03063','38100','38105'],
+  geriatrie: ['03360','03362','03370','03371','03372',
+               '30980','30984',
+               '37300','37302','37305','37306'],
+  video:     ['01450'],
+  pflege:    ['37100','37102','37105','37106','37107',
+               '37109','37116','37117','37120'],
+  chir:      ['02300','02301','02302','02310','02311','02312','02313','31600'],
+  us:        ['33012','33042'],
+  basis:     ['03241','03321','03322','03324','03330'],
+  // impf: alle 89xxx + Kap. 89 Codes — wird per Regex erkannt
+};
+
+function parseFGHText(text) {
+  const result = {
+    totalCases: 0, quartal: null, jahr: null,
+    values: {}, notes: []
+  };
+
+  // Fälle gesamt (encoding-tolerant: "Fälle" → Fälle/F.lle/etc.)
+  const faelleM = text.match(/Anzahl der F[^:]{0,8}:\s*(\d+)/);
+  if (faelleM) result.totalCases = parseInt(faelleM[1]);
+  else { result.notes.push('⚠ Fällezahl nicht gefunden'); }
+
+  // Zeitraum → Quartal ableiten
+  const periodM = text.match(/(\d{2})\.(\d{2})\.(\d{4})\s*[-–]\s*\d{2}\.\d{2}\.(\d{4})/);
+  if (periodM) {
+    const m = parseInt(periodM[2]);
+    result.quartal = m <= 3 ? 'Q1' : m <= 6 ? 'Q2' : m <= 9 ? 'Q3' : 'Q4';
+    result.jahr    = periodM[3];
+  } else { result.notes.push('⚠ Zeitraum nicht erkannt'); }
+
+  // Ziffer-Tabelle parsen: "     01410      73      46  ..."
+  // Ziffern können alphanumerisch sein: 89102A, 03220H, 89400E …
+  const zifferMap = {};
+  for (const line of text.split('\n')) {
+    // Führende Leerzeichen + Ziffer (5 Zeichen, ggf. + 1 Buchstabe) + Anzahl + Fälle
+    const m = line.match(/^\s{3,}([A-Z0-9]{5}[A-Z]?)\s+(\d+)\s+(\d+)/);
+    if (m) {
+      const code = m[1].trim();
+      const anzahl = parseInt(m[2]);
+      zifferMap[code] = (zifferMap[code] || 0) + anzahl;
+    }
+  }
+
+  // Kriterien summieren
+  for (const [key, codes] of Object.entries(GOP_MAP)) {
+    const sum = codes.reduce((s, c) => s + (zifferMap[c] || 0), 0);
+    result.values[key] = sum;
+  }
+
+  // Schutzimpfungen: Kap. 89 EBM (89xxx) + COVID-Impfziffern (8834x)
+  result.values.impf = Object.entries(zifferMap)
+    .filter(([k]) => /^89[0-9]{3}[A-Z]?$/.test(k) || /^8834[0-9]/.test(k))
+    .reduce((s, [, v]) => s + v, 0);
+
+  // Vollständigkeits-Hinweise
+  if (!result.values.pflege)    result.notes.push('ℹ Pflegeheim-Leistungen (Abschn. 37.2) nicht gefunden – ggf. manuell eintragen');
+  if (!result.values.geriatrie) result.notes.push('ℹ Keine Geriatrie-Ziffern erkannt – ggf. manuell prüfen');
+
+  result.zifferCount = Object.keys(zifferMap).length;
+  return result;
+}
+
+function showToast(msg, isError, duration) {
+  const el = document.getElementById('importToast');
+  if (!el) return;
+  el.textContent = msg;
+  el.className = 'import-toast show' + (isError ? ' error' : '');
+  setTimeout(() => { el.className = 'import-toast'; }, duration || 4000);
+}
+
+function handleFGHImport(input) {
+  const file = input.files[0];
+  if (!file) return;
+  input.value = ''; // reset so same file can be re-imported
+
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const parsed = parseFGHText(e.target.result);
+
+      if (!parsed.totalCases) {
+        showToast('Datei nicht erkannt – Fällezahl fehlt. Bitte Fachgruppenhäufigkeit-Export verwenden.', true, 5000);
+        return;
+      }
+
+      // Quartal & Jahr setzen
+      if (parsed.quartal) sv('quartalSelect', parsed.quartal);
+      if (parsed.jahr)    sv('jahrSelect',    parsed.jahr);
+
+      // Behandlungsfälle
+      sv('totalCases', parsed.totalCases);
+
+      // Einzelwerte
+      const keys = [...KPI_KEYS, ...CRIT_KEYS];
+      keys.forEach(k => {
+        const el = document.getElementById('in-' + k);
+        if (el && parsed.values[k] !== undefined) el.value = parsed.values[k];
+      });
+
+      // Zusammenarbeit + Öffnungszeiten: immer erfüllt
+      setCheck('zusammen', true);
+      setCheck('zeiten', true);
+
+      calcAll();
+      markDirty();
+
+      // Zusammenfassung
+      const pct = (k) => parsed.totalCases > 0
+        ? ((parsed.values[k] || 0) / parsed.totalCases * 100).toFixed(1) + '%'
+        : '–';
+
+      let summary = `✓ ${parsed.quartal} ${parsed.jahr} importiert · ${parsed.totalCases.toLocaleString('de-DE')} Fälle · ${parsed.zifferCount} Ziffern`;
+      if (parsed.notes.length) summary += '\n' + parsed.notes.join('\n');
+
+      showToast(summary, false, parsed.notes.length ? 7000 : 4000);
+
+    } catch(err) {
+      showToast('Fehler beim Parsen: ' + err.message, true, 6000);
+      console.error(err);
+    }
+  };
+  reader.readAsText(file, 'windows-1252'); // Praxissoftware oft in Windows-Encoding
 }
 
 // ══════════════════════════════════════════════════════════════
