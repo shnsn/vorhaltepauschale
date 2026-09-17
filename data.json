@@ -51,25 +51,25 @@
     "2026-Q3": {
       "quartal": "Q3",
       "jahr": "2026",
-      "totalCases": 2465,
+      "totalCases": 3771,
       "values": {
-        "besuche": 38,
-        "geriatrie": 287,
-        "video": 20,
+        "besuche": 88,
+        "geriatrie": 441,
+        "video": 31,
         "pflege": 0,
-        "impf": 223,
-        "chir": 94,
-        "us": 67,
-        "basis": 177
+        "impf": 508,
+        "chir": 253,
+        "us": 187,
+        "basis": 356
       },
       "checks": {
         "zusammen": true,
         "zeiten": true
       },
-      "savedAt": "2026-08-04T14:09:29.611Z",
+      "savedAt": "2026-09-17T06:04:29.756Z",
       "metCount": 6,
       "tier": 2,
-      "dayOfQuarter": 35,
+      "dayOfQuarter": 79,
       "totalDays": 92
     }
   }
