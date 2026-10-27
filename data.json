@@ -71,6 +71,30 @@
       "tier": 3,
       "dayOfQuarter": 92,
       "totalDays": 92
+    },
+    "2026-Q4": {
+      "quartal": "Q4",
+      "jahr": "2026",
+      "totalCases": 2224,
+      "values": {
+        "besuche": 40,
+        "geriatrie": 162,
+        "video": 3,
+        "pflege": 0,
+        "impf": 455,
+        "chir": 87,
+        "us": 58,
+        "basis": 124
+      },
+      "checks": {
+        "zusammen": true,
+        "zeiten": true
+      },
+      "savedAt": "2026-10-27T05:00:47.121Z",
+      "metCount": 5,
+      "tier": 2,
+      "dayOfQuarter": 27,
+      "totalDays": 92
     }
   }
 }
